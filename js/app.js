@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Set up local scan history controls (Phase 6)
   setupHistoryIntegration();
 
+  // Register PWA service worker (Phase 8)
+  registerServiceWorker();
+
   // Attempt to load model from default local path if available
   attemptDefaultModelLoad();
 
@@ -390,4 +393,25 @@ function getCameraErrorTitle(errorType) {
  */
 export function getLastCapturedCanvas() {
   return lastCapturedCanvas;
+}
+
+/**
+ * Registers the Service Worker for PWA offline shell caching (Phase 8).
+ * Fails gracefully and never breaks the application.
+ */
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('./service-worker.js')
+        .then((registration) => {
+          console.log('[PWA] Service Worker registered successfully with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.warn('[PWA] Service Worker registration failed (app will continue normally):', error);
+        });
+    });
+  } else {
+    console.log('[PWA] Service Workers are not supported in this browser environment.');
+  }
 }

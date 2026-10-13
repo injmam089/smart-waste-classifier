@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <rect width="64" height="64" rx="14" fill="#166534"/>
+  <circle cx="32" cy="32" r="23" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-opacity="0.4"/>
+  <!-- Leaf Sprout Icon -->
+  <path d="M 32 16 C 32 16 44 21 44 33 C 44 40 39 45 32 45 C 25 45 20 40 20 33 C 20 21 32 16 32 16 Z" fill="#4ade80"/>
+  <path d="M 32 22 L 32 44" stroke="#166534" stroke-width="2" stroke-linecap="round"/>
+</svg>

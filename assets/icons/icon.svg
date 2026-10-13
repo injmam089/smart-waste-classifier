@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#166534"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#4ade80"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+
+  <!-- Subtle glow ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#22c55e" stroke-width="6" stroke-opacity="0.25"/>
+
+  <!-- Main Graphic Container with shadow -->
+  <g filter="url(#shadow)">
+    <!-- 3-Arrow Recycling Symbol (Mobius loop) -->
+    <!-- Top Arrow -->
+    <path d="M 220 120 L 292 120 L 292 148 L 336 106 L 292 64 L 292 92 L 200 92 C 170 92 146 116 146 146 L 146 190 L 174 190 L 174 146 C 174 132 186 120 200 120 Z" fill="#ffffff" fill-opacity="0.95"/>
+
+    <!-- Bottom Right Arrow -->
+    <path d="M 390 270 L 354 332 L 330 318 L 330 376 L 388 376 L 364 362 L 410 282 C 425 256 416 222 390 207 L 352 185 L 338 210 L 376 232 C 388 239 392 255 385 267 Z" fill="#ffffff" fill-opacity="0.95"/>
+
+    <!-- Bottom Left Arrow -->
+    <path d="M 148 376 L 206 376 L 206 348 L 220 372 L 220 376 C 220 406 196 430 166 430 L 120 430 L 120 402 L 166 402 C 180 402 192 390 192 376 L 158 376 Z" fill="none"/>
+    <path d="M 174 380 L 138 318 L 162 304 L 104 304 L 104 362 L 128 348 L 164 410 C 179 436 213 445 239 430 L 277 408 L 263 383 L 225 405 C 213 412 197 408 190 396 Z" fill="#ffffff" fill-opacity="0.95"/>
+
+    <!-- Central Eco Sprout / Leaf -->
+    <path d="M 256 180 C 256 180 326 210 326 280 C 326 320 295 348 256 348 C 217 348 186 320 186 280 C 186 210 256 180 256 180 Z" fill="url(#leafGrad)"/>
+    <path d="M 256 210 C 256 250 256 300 256 344" stroke="#166534" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 256 260 C 276 250 296 256 296 256" stroke="#166534" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M 256 290 C 236 280 216 286 216 286" stroke="#166534" stroke-width="6" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>

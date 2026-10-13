@@ -4,7 +4,7 @@
  * Strictly adheres to Master Plan Section 26 and FR-16.
  */
 
-const CACHE_VERSION = 'smart-waste-v1';
+const CACHE_VERSION = 'smart-waste-v2';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 /**

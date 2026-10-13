@@ -1,6 +1,7 @@
 /**
- * Smart Waste Classifier - UI Module
- * Handles screen transitions, accessible navigation, view states, and camera UI.
+ * Smart Waste Classifier - UI Module (Mobile-First Overhaul)
+ * Handles screen transitions, accessible navigation, view states, camera UI,
+ * dynamic scan history filtering, recent scans, and statistics.
  */
 
 import { $, $$, formatConfidence, formatDate } from './utils.js';
@@ -13,6 +14,17 @@ export const SCREENS = ['home', 'scan', 'result', 'history', 'statistics', 'abou
 
 let currentScreenId = 'home';
 const screenChangeListeners = [];
+
+/**
+ * Rotating status messages for AI analysis state.
+ */
+let loadingMessageInterval = null;
+const ROTATING_MESSAGES = [
+  'Looking at visual features...',
+  'Identifying waste type...',
+  'Preparing disposal guidance...',
+  'Analyzing optical textures...'
+];
 
 /**
  * Register a listener invoked whenever the active screen changes.
@@ -55,12 +67,23 @@ export function showScreen(screenId) {
     const target = btn.getAttribute('data-nav-target');
     const isCurrent = target === screenId;
     btn.setAttribute('aria-current', isCurrent ? 'page' : 'false');
+
+    // Floating center scan button styling
+    if (btn.classList.contains('floating-scan-btn')) {
+      if (isCurrent) {
+        btn.classList.add('ring-4', 'ring-emerald-400/50');
+      } else {
+        btn.classList.remove('ring-4', 'ring-emerald-400/50');
+      }
+      return;
+    }
+
     if (isCurrent) {
-      btn.classList.add('text-green-700', 'font-bold', 'border-green-600');
-      btn.classList.remove('text-slate-600', 'font-medium', 'border-transparent');
+      btn.classList.add('text-emerald-700', 'font-bold');
+      btn.classList.remove('text-slate-500', 'text-slate-600', 'font-medium');
     } else {
-      btn.classList.remove('text-green-700', 'font-bold', 'border-green-600');
-      btn.classList.add('text-slate-600', 'font-medium', 'border-transparent');
+      btn.classList.remove('text-emerald-700', 'font-bold');
+      btn.classList.add('text-slate-500', 'font-medium');
     }
   });
 
@@ -203,15 +226,23 @@ export function updateCameraUI(state, details = {}) {
 
 /**
  * Updates AI classification status within the captured frame overlay.
+ * Handles rotating analysis messages and visual feedback.
  * @param {'loading'|'unconfigured'|'confident'|'uncertain'|'error'} state
  * @param {Object} [data={}]
  */
 export function updateClassifierUI(state, data = {}) {
+  // Clear any existing rotating message interval
+  if (loadingMessageInterval) {
+    clearInterval(loadingMessageInterval);
+    loadingMessageInterval = null;
+  }
+
   const loadingEl = $('#ai-loading-state');
   const unconfiguredEl = $('#ai-unconfigured-state');
   const confidentEl = $('#ai-confident-state');
   const uncertainEl = $('#ai-uncertain-state');
   const errorEl = $('#ai-error-state');
+  const loadingMsgEl = $('#ai-loading-message');
 
   // Hide all sub-states first
   [loadingEl, unconfiguredEl, confidentEl, uncertainEl, errorEl].forEach((el) => {
@@ -220,6 +251,16 @@ export function updateClassifierUI(state, data = {}) {
 
   if (state === 'loading') {
     if (loadingEl) loadingEl.classList.remove('hidden');
+    if (loadingMsgEl) {
+      let idx = 0;
+      loadingMsgEl.textContent = ROTATING_MESSAGES[0];
+      loadingMessageInterval = setInterval(() => {
+        idx = (idx + 1) % ROTATING_MESSAGES.length;
+        if (loadingMsgEl) {
+          loadingMsgEl.textContent = ROTATING_MESSAGES[idx];
+        }
+      }, 1200);
+    }
   } else if (state === 'unconfigured') {
     if (unconfiguredEl) unconfiguredEl.classList.remove('hidden');
   } else if (state === 'confident' && data.topPrediction) {
@@ -351,12 +392,12 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
     // Apply category styles to container & badge
     const cardContainer = $('#result-card-container');
     if (cardContainer) {
-      cardContainer.className = `rounded-2xl p-6 mb-6 border transition-all text-center ${config.cardClass}`;
+      cardContainer.className = `rounded-2xl p-5 mb-5 border transition-all text-center ${config.cardClass}`;
     }
 
     const badgeEl = $('#result-category-badge');
     if (badgeEl) {
-      badgeEl.className = `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-bold mb-3 shadow-xs border ${config.badgeClass}`;
+      badgeEl.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold mb-2.5 shadow-2xs border ${config.badgeClass}`;
     }
 
     const iconEl = $('#result-category-icon');
@@ -412,7 +453,7 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
 
     if (statusBadge) {
       statusBadge.textContent = 'Classification Confident';
-      statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full';
+      statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full';
     }
 
     const announcer = $('#screen-announcer');
@@ -503,7 +544,7 @@ function populateGuidanceList(ulElement, items) {
 /**
  * Visual badge styling presets for scan history categories.
  */
-const categoryStyles = {
+export const categoryStyles = {
   recyclable: {
     icon: '♻️',
     label: 'Recyclable',
@@ -528,22 +569,27 @@ const categoryStyles = {
 
 /**
  * Renders the persistent scan history list into the History screen.
+ * Supports optional category filtering.
  * Safely creates DOM elements and utilizes textContent to prevent XSS.
  *
  * @param {Array<Object>} historyRecords
+ * @param {string} [activeFilter='all']
  */
-export function renderHistory(historyRecords) {
+export function renderHistory(historyRecords, activeFilter = 'all') {
   const badgeEl = $('#history-count-badge');
   const btnClear = $('#btn-clear-history');
   const emptyStateEl = $('#history-empty-state');
   const listContainerEl = $('#history-list-container');
   const itemsListEl = $('#history-items-list');
 
-  const records = Array.isArray(historyRecords) ? historyRecords : [];
+  const allRecords = Array.isArray(historyRecords) ? historyRecords : [];
+  const records = activeFilter && activeFilter !== 'all'
+    ? allRecords.filter(r => (r.category || '').toLowerCase() === activeFilter.toLowerCase())
+    : allRecords;
 
-  // Update badge count
+  // Update badge count with total saved records
   if (badgeEl) {
-    badgeEl.textContent = records.length === 1 ? '1 Saved Scan' : `${records.length} Saved Scans`;
+    badgeEl.textContent = allRecords.length === 1 ? '1 Saved Scan' : `${allRecords.length} Saved Scans`;
   }
 
   // Handle empty state
@@ -551,8 +597,10 @@ export function renderHistory(historyRecords) {
     if (emptyStateEl) emptyStateEl.classList.remove('hidden');
     if (listContainerEl) listContainerEl.classList.add('hidden');
     if (btnClear) {
-      btnClear.disabled = true;
-      btnClear.className = 'text-xs font-semibold text-slate-400 bg-slate-100 px-3.5 py-2 rounded-xl cursor-not-allowed transition-colors self-start sm:self-auto flex items-center gap-1.5';
+      btnClear.disabled = allRecords.length === 0;
+      btnClear.className = allRecords.length === 0
+        ? 'text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl cursor-not-allowed transition-colors flex items-center gap-1 min-h-[44px]'
+        : 'text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl cursor-pointer transition-colors flex items-center gap-1 min-h-[44px]';
     }
     if (itemsListEl) {
       while (itemsListEl.firstChild) {
@@ -567,7 +615,7 @@ export function renderHistory(historyRecords) {
   if (listContainerEl) listContainerEl.classList.remove('hidden');
   if (btnClear) {
     btnClear.disabled = false;
-    btnClear.className = 'text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 px-3.5 py-2 rounded-xl cursor-pointer transition-colors self-start sm:self-auto flex items-center gap-1.5 shadow-2xs';
+    btnClear.className = 'text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 px-3 py-1.5 rounded-xl cursor-pointer transition-colors flex items-center gap-1 min-h-[44px]';
   }
 
   if (!itemsListEl) return;
@@ -583,42 +631,43 @@ export function renderHistory(historyRecords) {
     const style = categoryStyles[catKey] || categoryStyles.unknown;
 
     const li = document.createElement('li');
-    li.className = 'bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/90 rounded-2xl p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs';
+    li.className = 'bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/90 rounded-2xl p-3.5 transition-all flex items-center justify-between gap-3 shadow-2xs';
 
     // Left block: category badge + predicted class
     const leftDiv = document.createElement('div');
-    leftDiv.className = 'space-y-1.5';
+    leftDiv.className = 'flex items-center gap-2.5 min-w-0';
 
-    const badgeDiv = document.createElement('div');
-    badgeDiv.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${style.badgeClass}`;
+    const iconBadge = document.createElement('div');
+    iconBadge.className = `w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border ${style.badgeClass}`;
+    iconBadge.setAttribute('aria-hidden', 'true');
+    iconBadge.textContent = style.icon;
 
-    const iconSpan = document.createElement('span');
-    iconSpan.setAttribute('aria-hidden', 'true');
-    iconSpan.textContent = style.icon;
-
-    const labelSpan = document.createElement('span');
-    labelSpan.textContent = style.label;
-
-    badgeDiv.appendChild(iconSpan);
-    badgeDiv.appendChild(labelSpan);
+    const textDiv = document.createElement('div');
+    textDiv.className = 'min-w-0';
 
     const classHeading = document.createElement('h3');
-    classHeading.className = 'text-base font-bold text-slate-900';
+    classHeading.className = 'text-sm font-bold text-slate-900 truncate';
     classHeading.textContent = record.predictedClass || style.label;
 
-    leftDiv.appendChild(badgeDiv);
-    leftDiv.appendChild(classHeading);
+    const catLabel = document.createElement('span');
+    catLabel.className = 'text-xs text-slate-500 block';
+    catLabel.textContent = style.label;
+
+    textDiv.appendChild(classHeading);
+    textDiv.appendChild(catLabel);
+    leftDiv.appendChild(iconBadge);
+    leftDiv.appendChild(textDiv);
 
     // Right block: confidence score + formatted timestamp
     const rightDiv = document.createElement('div');
-    rightDiv.className = 'flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 text-right';
+    rightDiv.className = 'flex flex-col items-end justify-center gap-0.5 text-right shrink-0';
 
     const confSpan = document.createElement('span');
-    confSpan.className = 'text-xs font-extrabold text-green-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full shadow-2xs';
+    confSpan.className = 'text-xs font-extrabold text-emerald-800 bg-white border border-slate-200 px-2 py-0.5 rounded-full shadow-2xs';
     confSpan.textContent = formatConfidence(record.confidence);
 
     const timeEl = document.createElement('time');
-    timeEl.className = 'text-xs text-slate-500 whitespace-nowrap';
+    timeEl.className = 'text-[11px] text-slate-400 whitespace-nowrap';
     timeEl.setAttribute('datetime', record.timestamp || '');
     timeEl.textContent = formatDate(record.timestamp);
 
@@ -629,6 +678,80 @@ export function renderHistory(historyRecords) {
     li.appendChild(rightDiv);
 
     itemsListEl.appendChild(li);
+  });
+}
+
+/**
+ * Renders latest 2-3 scans on the mobile Home screen.
+ * @param {Array<Object>} historyRecords
+ */
+export function renderHomeRecentScans(historyRecords) {
+  const container = $('#home-recent-scans-container');
+  if (!container) return;
+
+  const records = Array.isArray(historyRecords) ? historyRecords : [];
+
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+
+  if (records.length === 0) {
+    const emptyCard = document.createElement('div');
+    emptyCard.className = 'py-6 px-4 bg-slate-50/70 border border-dashed border-slate-200 rounded-2xl text-center';
+
+    const icon = document.createElement('span');
+    icon.className = 'text-2xl block mb-1 text-slate-400';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '🌱';
+
+    const p = document.createElement('p');
+    p.className = 'text-xs font-medium text-slate-500';
+    p.textContent = 'Your scans will appear here.';
+
+    emptyCard.appendChild(icon);
+    emptyCard.appendChild(p);
+    container.appendChild(emptyCard);
+    return;
+  }
+
+  const recent = records.slice(0, 3);
+  recent.forEach((record) => {
+    const catKey = (record.category || 'unknown').toLowerCase();
+    const style = categoryStyles[catKey] || categoryStyles.unknown;
+
+    const card = document.createElement('div');
+    card.className = 'p-3 bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 transition-all';
+
+    const left = document.createElement('div');
+    left.className = 'flex items-center gap-2.5 min-w-0';
+
+    const iconBadge = document.createElement('span');
+    iconBadge.className = `w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 border ${style.badgeClass}`;
+    iconBadge.textContent = style.icon;
+
+    const info = document.createElement('div');
+    info.className = 'min-w-0';
+
+    const title = document.createElement('h4');
+    title.className = 'text-xs font-bold text-slate-900 truncate';
+    title.textContent = record.predictedClass || style.label;
+
+    const sub = document.createElement('span');
+    sub.className = 'text-[11px] text-slate-500 block';
+    sub.textContent = formatDate(record.timestamp);
+
+    info.appendChild(title);
+    info.appendChild(sub);
+    left.appendChild(iconBadge);
+    left.appendChild(info);
+
+    const right = document.createElement('span');
+    right.className = 'text-xs font-extrabold text-emerald-800 bg-white border border-slate-200/90 px-2 py-0.5 rounded-full shadow-2xs shrink-0';
+    right.textContent = formatConfidence(record.confidence);
+
+    card.appendChild(left);
+    card.appendChild(right);
+    container.appendChild(card);
   });
 }
 
@@ -647,6 +770,24 @@ export function showClearHistoryModal(isOpen) {
     modal.classList.add('hidden');
     const clearBtn = $('#btn-clear-history');
     if (clearBtn && !clearBtn.disabled) clearBtn.focus();
+  }
+}
+
+/**
+ * Toggles visibility of the Scanning Tips modal.
+ * @param {boolean} isOpen
+ */
+export function showTipsModal(isOpen) {
+  const modal = $('#modal-scan-tips');
+  if (!modal) return;
+  if (isOpen) {
+    modal.classList.remove('hidden');
+    const dismissBtn = $('#btn-dismiss-tips');
+    if (dismissBtn) dismissBtn.focus();
+  } else {
+    modal.classList.add('hidden');
+    const tipsBtn = $('#btn-scan-tips');
+    if (tipsBtn) tipsBtn.focus();
   }
 }
 
@@ -784,29 +925,39 @@ export function initUI() {
 
   // Accessibility: Keyboard handlers for dialogs and modal traps
   document.addEventListener('keydown', (event) => {
-    const modal = $('#modal-clear-history');
-    if (!modal || modal.classList.contains('hidden')) return;
+    const modalClear = $('#modal-clear-history');
 
-    // Close modal on Escape key
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      showClearHistoryModal(false);
+    // Close clear history modal on Escape key
+    if (modalClear && !modalClear.classList.contains('hidden')) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        showClearHistoryModal(false);
+        return;
+      }
+
+      // Accessible Focus Trap: Cycle between Cancel and Confirm buttons
+      if (event.key === 'Tab') {
+        const cancelBtn = $('#btn-cancel-clear-history');
+        const confirmBtn = $('#btn-confirm-clear-history');
+
+        if (event.shiftKey && document.activeElement === cancelBtn) {
+          event.preventDefault();
+          if (confirmBtn) confirmBtn.focus();
+        } else if (!event.shiftKey && document.activeElement === confirmBtn) {
+          event.preventDefault();
+          if (cancelBtn) cancelBtn.focus();
+        }
+      }
       return;
     }
 
-    // Accessible Focus Trap: Cycle between Cancel and Confirm buttons
-    if (event.key === 'Tab') {
-      const cancelBtn = $('#btn-cancel-clear-history');
-      const confirmBtn = $('#btn-confirm-clear-history');
-
-      if (event.shiftKey && document.activeElement === cancelBtn) {
+    // Close scan tips modal on Escape key
+    const modalTips = $('#modal-scan-tips');
+    if (modalTips && !modalTips.classList.contains('hidden')) {
+      if (event.key === 'Escape') {
         event.preventDefault();
-        if (confirmBtn) confirmBtn.focus();
-      } else if (!event.shiftKey && document.activeElement === confirmBtn) {
-        event.preventDefault();
-        if (cancelBtn) cancelBtn.focus();
+        showTipsModal(false);
       }
     }
   });
 }
-

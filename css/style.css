@@ -1,17 +1,19 @@
 /* ==========================================================================
-   Smart Waste Classifier - Base & Component Styles
+   Smart Waste Classifier - Mobile-First Premium Eco-Tech Stylesheet
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --color-brand-primary: #15803d;     /* Green 700 */
-  --color-brand-light: #22c55e;       /* Green 500 */
-  --color-brand-dark: #14532d;        /* Green 900 */
+  --color-brand-primary: #065f46;     /* Emerald 800 */
+  --color-brand-accent: #10b981;      /* Emerald 500 */
+  --color-brand-dark: #064e3b;        /* Emerald 900 */
   --color-recyclable: #059669;        /* Emerald 600 */
   --color-organic: #65a30d;           /* Lime 600 */
   --color-ewaste: #d97706;            /* Amber 600 */
   --color-uncertain: #64748b;         /* Slate 500 */
   --color-bg-base: #f8fafc;           /* Slate 50 */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Reset & Box Sizing */
@@ -24,21 +26,23 @@ html, body {
   padding: 0;
   font-family: var(--font-sans);
   background-color: var(--color-bg-base);
-  color: #1e293b;
+  color: #0f172a;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   max-width: 100vw;
+  font-size: 15px;
 }
 
-/* Touch action optimization for mobile */
-button, a, input {
+/* Touch Action Optimization for Mobile */
+button, a, input, select {
   touch-action: manipulation;
 }
 
 /* Accessibility: Focus Indicators */
 :focus-visible {
-  outline: 3px solid #15803d;
+  outline: 3px solid #10b981;
   outline-offset: 2px;
 }
 
@@ -55,16 +59,18 @@ button, a, input {
 /* Skip Navigation Link */
 .skip-link {
   position: absolute;
-  top: -40px;
+  top: -50px;
   left: 1rem;
-  background: #14532d;
+  background: #064e3b;
   color: #ffffff;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   z-index: 100;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   transition: top 0.2s ease-in-out;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .skip-link:focus {
@@ -75,60 +81,75 @@ button, a, input {
 .app-screen {
   display: none;
   opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
 .app-screen.active {
   display: block;
   opacity: 1;
+  transform: translateY(0);
 }
 
-/* Camera Viewfinder Reticle */
+/* Safe Area Inset Management for Modern Edge-to-Edge Mobile Displays */
+.safe-bottom-padding {
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .safe-bottom-padding {
+    padding-bottom: 3rem;
+  }
+}
+
+/* Camera Viewfinder Reticle & Viewport */
 .viewfinder-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 1rem;
-  background-color: #0f172a;
+  border-radius: 1.5rem;
+  background-color: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .reticle-corner {
   position: absolute;
-  width: 28px;
-  height: 28px;
-  border-color: #22c55e;
+  width: 32px;
+  height: 32px;
+  border-color: #10b981;
   border-style: solid;
   pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
 }
 
 .reticle-top-left {
-  top: 16px;
-  left: 16px;
-  border-width: 3px 0 0 3px;
-  border-top-left-radius: 6px;
+  top: 20px;
+  left: 20px;
+  border-width: 3.5px 0 0 3.5px;
+  border-top-left-radius: 8px;
 }
 
 .reticle-top-right {
-  top: 16px;
-  right: 16px;
-  border-width: 3px 3px 0 0;
-  border-top-right-radius: 6px;
+  top: 20px;
+  right: 20px;
+  border-width: 3.5px 3.5px 0 0;
+  border-top-right-radius: 8px;
 }
 
 .reticle-bottom-left {
-  bottom: 16px;
-  left: 16px;
-  border-width: 0 0 3px 3px;
-  border-bottom-left-radius: 6px;
+  bottom: 20px;
+  left: 20px;
+  border-width: 0 0 3.5px 3.5px;
+  border-bottom-left-radius: 8px;
 }
 
 .reticle-bottom-right {
-  bottom: 16px;
-  right: 16px;
-  border-width: 0 3px 3px 0;
-  border-bottom-right-radius: 6px;
+  bottom: 20px;
+  right: 20px;
+  border-width: 0 3.5px 3.5px 0;
+  border-bottom-right-radius: 8px;
 }
 
-/* Viewfinder Elements */
+/* Viewfinder Video Stream */
 .viewfinder-video {
   position: absolute;
   inset: 0;
@@ -148,23 +169,112 @@ button, a, input {
   justify-content: center;
   padding: 1.5rem;
   text-align: center;
+  background-color: rgba(2, 6, 23, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Scanning Pulse Laser Line (CSS Animation) */
 .scan-laser {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 12px;
+  right: 12px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #22c55e, transparent);
-  box-shadow: 0 0 10px #22c55e;
-  animation: scanSweep 2.5s ease-in-out infinite alternate;
+  background: linear-gradient(90deg, transparent 0%, #34d399 50%, transparent 100%);
+  box-shadow: 0 0 12px #10b981, 0 0 4px #34d399;
+  animation: scanSweep 2.4s ease-in-out infinite alternate;
 }
 
 @keyframes scanSweep {
-  0% { top: 12%; opacity: 0.3; }
+  0% { top: 12%; opacity: 0.2; }
   50% { opacity: 1; }
-  100% { top: 88%; opacity: 0.3; }
+  100% { top: 88%; opacity: 0.2; }
+}
+
+/* Radar Pulse Wave Animation for AI Analysis */
+.pulse-ring {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+  animation: pulseRadar 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulseRadar {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Mobile Shutter Button Styling */
+.shutter-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: transparent;
+  border: 4px solid #ffffff;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  touch-action: manipulation;
+}
+
+.shutter-btn-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #064e3b;
+}
+
+.shutter-btn:active .shutter-btn-inner {
+  transform: scale(0.9);
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.shutter-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Floating Center Scan Button on Mobile Bottom Nav */
+.floating-scan-btn {
+  position: relative;
+  top: -16px;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px -2px rgba(5, 150, 105, 0.45), 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 3px solid #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 40;
+}
+
+.floating-scan-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
 }
 
 /* Category Semantic Badges */
@@ -192,13 +302,40 @@ button, a, input {
   border: 1px solid #cbd5e1;
 }
 
-/* Safe Area Inset for Modern Mobile Devices */
-.safe-bottom-padding {
-  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+/* History Filter Chips */
+.filter-chip {
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #475569;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-@media (min-width: 768px) {
-  .safe-bottom-padding {
-    padding-bottom: 2rem;
-  }
+.filter-chip.active {
+  background-color: #064e3b;
+  border-color: #064e3b;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.25);
+}
+
+.filter-chip:hover:not(.active) {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+/* Custom Scrollbar for Horizontal Chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

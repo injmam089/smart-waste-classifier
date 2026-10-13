@@ -1,6 +1,7 @@
 /**
- * Smart Waste Classifier - Main Application Orchestrator
+ * Smart Waste Classifier - Main Application Orchestrator (Mobile-First Overhaul)
  * Integrates UI navigation, Phase 2 Camera Module, and Phase 3 AI Classifier Module.
+ * Features gallery photo upload, rotating analysis state, recent scans, and PWA integration.
  */
 
 import { $, $$, generateId } from './utils.js';
@@ -13,7 +14,9 @@ import {
   updateClassifierUI,
   renderClassificationResult,
   renderHistory,
+  renderHomeRecentScans,
   showClearHistoryModal,
+  showTipsModal,
   renderStatistics
 } from './ui.js';
 import {
@@ -41,27 +44,32 @@ import {
 } from './storage.js';
 
 let lastCapturedCanvas = null;
+let currentHistoryFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[Smart Waste Classifier] Initializing application...');
+  console.log('[Smart Waste Classifier] Initializing mobile-first application...');
 
-  // Initialize UI navigation
+  // Initialize UI navigation and keyboard traps
   initUI();
 
-  // Set up camera controls and lifecycle
+  // Set up camera controls, gallery upload, and tips modal
   setupCameraIntegration();
 
   // Set up model loading and custom URL inputs
   setupClassifierIntegration();
 
-  // Set up local scan history controls (Phase 6)
+  // Set up local scan history controls and filter chips
   setupHistoryIntegration();
 
-  // Register PWA service worker (Phase 8)
+  // Set up PWA service worker and install prompt
   registerServiceWorker();
+  setupPwaFeatures();
 
   // Automatically load the production Teachable Machine model on launch
   attemptDefaultModelLoad();
+
+  // Render recent scans on the home screen
+  renderHomeRecentScans(getScanHistory());
 
   // Determine initial screen from hash or default to home
   const initialHash = window.location.hash.replace('#', '').trim();
@@ -71,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showScreen('home');
   }
 
-  console.log('[Smart Waste Classifier] Application initialized successfully.');
+  console.log('[Smart Waste Classifier] Mobile-first application initialized successfully.');
 });
 
 /**
@@ -88,16 +96,25 @@ async function attemptDefaultModelLoad() {
 }
 
 /**
- * Configures camera event listeners, controls, and screen lifecycle integration.
+ * Configures camera event listeners, controls, gallery uploads, tips modal, and screen lifecycle integration.
  */
 function setupCameraIntegration() {
-  const videoEl = $('#camera-preview');
-  const canvasEl = $('#camera-canvas');
   const btnStart = $('#btn-start-camera');
   const btnRetry = $('#btn-retry-camera');
   const btnCapture = $('#btn-capture');
   const btnRetake = $('#btn-retake-camera');
   const btnFlip = $('#btn-flip-camera');
+  const btnAnalyze = $('#btn-analyze-waste');
+
+  // Gallery file upload elements
+  const btnGallery = $('#btn-open-gallery');
+  const inputGallery = $('#input-gallery-file');
+
+  // Tips modal elements
+  const btnTips = $('#btn-scan-tips');
+  const btnCloseTips = $('#btn-close-tips');
+  const btnDismissTips = $('#btn-dismiss-tips');
+  const modalTips = $('#modal-scan-tips');
 
   // Handle start camera button click
   if (btnStart) {
@@ -131,6 +148,82 @@ function setupCameraIntegration() {
   if (btnFlip) {
     btnFlip.addEventListener('click', () => {
       handleFlipCamera();
+    });
+  }
+
+  // Handle manual "Analyze Waste" button click after capture
+  if (btnAnalyze) {
+    btnAnalyze.addEventListener('click', async () => {
+      if (lastCapturedCanvas) {
+        await runClassification(lastCapturedCanvas);
+      }
+    });
+  }
+
+  // Handle gallery photo upload
+  if (btnGallery && inputGallery) {
+    btnGallery.addEventListener('click', () => {
+      inputGallery.click();
+    });
+
+    inputGallery.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const img = new Image();
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 640;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h / w) * maxDim);
+              w = maxDim;
+            } else {
+              w = Math.round((w / h) * maxDim);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          lastCapturedCanvas = canvas;
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          updateCameraUI('captured', { dataUrl });
+          console.log('[App] Gallery photo loaded. Handing off to AI classifier...');
+
+          try {
+            await runClassification(canvas);
+          } finally {
+            inputGallery.value = ''; // Reset input for reuse
+          }
+        };
+        img.src = loadEvt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Handle Tips modal open/close
+  if (btnTips) {
+    btnTips.addEventListener('click', () => showTipsModal(true));
+  }
+  if (btnCloseTips) {
+    btnCloseTips.addEventListener('click', () => showTipsModal(false));
+  }
+  if (btnDismissTips) {
+    btnDismissTips.addEventListener('click', () => showTipsModal(false));
+  }
+  if (modalTips) {
+    modalTips.addEventListener('click', (event) => {
+      if (event.target === modalTips) {
+        showTipsModal(false);
+      }
     });
   }
 
@@ -195,13 +288,28 @@ function setupClassifierIntegration() {
 }
 
 /**
- * Configures scan history UI interactions, confirmation modal, and screen rendering.
+ * Configures scan history UI interactions, filter chips, confirmation modal, and screen rendering.
  */
 function setupHistoryIntegration() {
   const btnClear = $('#btn-clear-history');
   const btnCancel = $('#btn-cancel-clear-history');
   const btnConfirm = $('#btn-confirm-clear-history');
   const modal = $('#modal-clear-history');
+
+  // Filter chips in History screen
+  const filterChips = $$('[data-history-filter]');
+  filterChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach((c) => {
+        c.classList.remove('active');
+        c.setAttribute('aria-selected', 'false');
+      });
+      chip.classList.add('active');
+      chip.setAttribute('aria-selected', 'true');
+      currentHistoryFilter = chip.getAttribute('data-history-filter') || 'all';
+      renderHistory(getScanHistory(), currentHistoryFilter);
+    });
+  });
 
   if (btnClear) {
     btnClear.addEventListener('click', () => {
@@ -229,8 +337,9 @@ function setupHistoryIntegration() {
       console.log('[App] Clearing all scan history from LocalStorage...');
       clearScanHistory();
       showClearHistoryModal(false);
-      renderHistory(getScanHistory());
+      renderHistory(getScanHistory(), currentHistoryFilter);
       renderStatistics(getStatistics());
+      renderHomeRecentScans(getScanHistory());
 
       const announcer = $('#screen-announcer');
       if (announcer) {
@@ -239,11 +348,14 @@ function setupHistoryIntegration() {
     });
   }
 
-  // Refresh history or statistics whenever switching to their screens
+  // Refresh history, statistics, or home recent scans whenever switching screens
   onScreenChange((newScreen) => {
-    if (newScreen === 'history') {
+    if (newScreen === 'home') {
+      console.log('[App] Refreshing home screen recent scans...');
+      renderHomeRecentScans(getScanHistory());
+    } else if (newScreen === 'history') {
       console.log('[App] Refreshing history screen view...');
-      renderHistory(getScanHistory());
+      renderHistory(getScanHistory(), currentHistoryFilter);
     } else if (newScreen === 'statistics') {
       console.log('[App] Refreshing statistics dashboard...');
       renderStatistics(getStatistics());
@@ -369,6 +481,8 @@ async function runClassification(canvas) {
       const saveResult = saveScan(scanRecord);
       if (!saveResult.success) {
         console.warn('[App] Could not persist scan history:', saveResult.error);
+      } else {
+        renderHomeRecentScans(getScanHistory());
       }
     }
 
@@ -440,6 +554,46 @@ function getCameraErrorTitle(errorType) {
       return 'Browser Unsupported';
     default:
       return 'Camera Unavailable';
+  }
+}
+
+/**
+ * Sets up PWA offline banner and install prompt.
+ */
+function setupPwaFeatures() {
+  const offlineBanner = $('#offline-banner');
+
+  window.addEventListener('offline', () => {
+    if (offlineBanner) offlineBanner.classList.remove('hidden');
+  });
+
+  window.addEventListener('online', () => {
+    if (offlineBanner) offlineBanner.classList.add('hidden');
+  });
+
+  if (typeof navigator !== 'undefined' && !navigator.onLine && offlineBanner) {
+    offlineBanner.classList.remove('hidden');
+  }
+
+  // PWA Install prompt listener
+  let deferredPrompt = null;
+  const installBtn = $('#btn-pwa-install');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.classList.remove('hidden');
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('[PWA] User choice for install prompt:', outcome);
+      deferredPrompt = null;
+      installBtn.classList.add('hidden');
+    });
   }
 }
 

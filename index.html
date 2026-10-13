@@ -620,36 +620,115 @@
         <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
           <span aria-hidden="true">←</span> Back to Home
         </button>
-        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+        <span id="stats-status-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">0 Scans Recorded</span>
       </div>
 
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
-        <div class="mb-6">
-          <h2 id="stats-heading" class="text-2xl font-bold text-slate-900">Waste Statistics</h2>
-          <p class="text-sm text-slate-600">Aggregated breakdown of classified items.</p>
+        <div class="mb-6 pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 id="stats-heading" class="text-2xl font-bold text-slate-900">Waste Statistics</h2>
+            <p class="text-sm text-slate-600">Aggregated breakdown of classified items from your local scan history.</p>
+          </div>
+          <span class="text-[11px] font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full self-start sm:self-auto">
+            Client-Side Analytics
+          </span>
         </div>
 
-        <!-- Metric Counter Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Scans</span>
-            <span class="text-3xl font-extrabold text-slate-900">0</span>
-          </div>
-          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
-            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-1">♻️ Recyclable</span>
-            <span class="text-3xl font-extrabold text-emerald-900">0</span>
-          </div>
-          <div class="bg-lime-50 border border-lime-200 rounded-2xl p-4 text-center">
-            <span class="text-xs font-bold text-lime-800 uppercase tracking-wider block mb-1">🌱 Organic</span>
-            <span class="text-3xl font-extrabold text-lime-900">0</span>
-          </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-            <span class="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">🔋 E-Waste</span>
-            <span class="text-3xl font-extrabold text-amber-900">0</span>
-          </div>
+        <!-- Empty State Container (shown when total == 0) -->
+        <div id="stats-empty-state" class="py-12 flex flex-col items-center justify-center text-center">
+          <span class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mb-4" aria-hidden="true">📊</span>
+          <h3 class="text-lg font-bold text-slate-800 mb-1">No Statistics Yet</h3>
+          <p class="text-sm text-slate-500 max-w-sm mb-6">Complete your first confident scan to generate real-time waste analytics and percentage breakdowns.</p>
+          <button data-nav-target="scan" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-sm">
+            <span>📷 Start Scanning</span>
+          </button>
         </div>
 
-        <p class="text-xs text-slate-500 text-center">Live metrics will update automatically from LocalStorage in Phase 7.</p>
+        <!-- Populated Statistics Container (shown when total > 0) -->
+        <div id="stats-content-container" class="hidden space-y-8">
+          <!-- Metric Counter Cards (FR-13) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <!-- Total Scans -->
+            <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 text-center shadow-2xs">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Scans</span>
+              <span id="stat-total-count" class="text-3xl font-extrabold text-slate-900 block">0</span>
+              <span class="text-[11px] text-slate-500 font-medium">100% of scans</span>
+            </div>
+
+            <!-- Recyclable -->
+            <div class="bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-center shadow-2xs">
+              <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-1">♻️ Recyclable</span>
+              <span id="stat-recyclable-count" class="text-3xl font-extrabold text-emerald-900 block">0</span>
+              <span id="stat-recyclable-pct" class="text-xs font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mt-1">0%</span>
+            </div>
+
+            <!-- Organic -->
+            <div class="bg-lime-50/70 border border-lime-200/90 rounded-2xl p-4 text-center shadow-2xs">
+              <span class="text-xs font-bold text-lime-800 uppercase tracking-wider block mb-1">🌱 Organic</span>
+              <span id="stat-organic-count" class="text-3xl font-extrabold text-lime-900 block">0</span>
+              <span id="stat-organic-pct" class="text-xs font-bold text-lime-700 bg-lime-100/80 px-2 py-0.5 rounded-full inline-block mt-1">0%</span>
+            </div>
+
+            <!-- E-Waste -->
+            <div class="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 text-center shadow-2xs">
+              <span class="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">🔋 E-Waste</span>
+              <span id="stat-ewaste-count" class="text-3xl font-extrabold text-amber-900 block">0</span>
+              <span id="stat-ewaste-pct" class="text-xs font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full inline-block mt-1">0%</span>
+            </div>
+          </div>
+
+          <!-- Visual Category Distribution Bars (Section 25 & FR-13) -->
+          <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span>📈</span> Category Distribution
+            </h3>
+
+            <div class="space-y-4">
+              <!-- Recyclable Bar -->
+              <div>
+                <div class="flex items-center justify-between text-xs font-semibold mb-1.5 text-slate-700">
+                  <span class="flex items-center gap-1.5">
+                    <span>♻️</span> Recyclable
+                  </span>
+                  <span id="stat-dist-recyclable-text" class="text-emerald-800 font-bold">0 items (0%)</span>
+                </div>
+                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="stat-bar-recyclable" class="h-full bg-emerald-600 rounded-full transition-all duration-500" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Recyclable percentage"></div>
+                </div>
+              </div>
+
+              <!-- Organic Bar -->
+              <div>
+                <div class="flex items-center justify-between text-xs font-semibold mb-1.5 text-slate-700">
+                  <span class="flex items-center gap-1.5">
+                    <span>🌱</span> Organic
+                  </span>
+                  <span id="stat-dist-organic-text" class="text-lime-800 font-bold">0 items (0%)</span>
+                </div>
+                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="stat-bar-organic" class="h-full bg-lime-600 rounded-full transition-all duration-500" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Organic percentage"></div>
+                </div>
+              </div>
+
+              <!-- E-Waste Bar -->
+              <div>
+                <div class="flex items-center justify-between text-xs font-semibold mb-1.5 text-slate-700">
+                  <span class="flex items-center gap-1.5">
+                    <span>🔋</span> E-Waste
+                  </span>
+                  <span id="stat-dist-ewaste-text" class="text-amber-800 font-bold">0 items (0%)</span>
+                </div>
+                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="stat-bar-ewaste" class="h-full bg-amber-600 rounded-full transition-all duration-500" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="E-Waste percentage"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 text-center italic">
+            Metrics are computed live from client-side scan history stored in this browser.
+          </p>
+        </div>
       </div>
     </section>
 

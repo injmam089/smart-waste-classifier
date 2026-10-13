@@ -13,7 +13,8 @@ import {
   updateClassifierUI,
   renderClassificationResult,
   renderHistory,
-  showClearHistoryModal
+  showClearHistoryModal,
+  renderStatistics
 } from './ui.js';
 import {
   startCamera,
@@ -220,19 +221,23 @@ function setupHistoryIntegration() {
       clearScanHistory();
       showClearHistoryModal(false);
       renderHistory(getScanHistory());
+      renderStatistics(getStatistics());
 
       const announcer = $('#screen-announcer');
       if (announcer) {
-        announcer.textContent = 'All scan history has been cleared.';
+        announcer.textContent = 'All scan history and statistics have been cleared.';
       }
     });
   }
 
-  // When switching to the history screen, refresh the history list
+  // Refresh history or statistics whenever switching to their screens
   onScreenChange((newScreen) => {
     if (newScreen === 'history') {
       console.log('[App] Refreshing history screen view...');
       renderHistory(getScanHistory());
+    } else if (newScreen === 'statistics') {
+      console.log('[App] Refreshing statistics dashboard...');
+      renderStatistics(getStatistics());
     }
   });
 }

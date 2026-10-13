@@ -636,6 +636,116 @@ export function showClearHistoryModal(isOpen) {
 }
 
 /**
+ * Renders aggregated statistics into the Statistics screen (FR-13 & Section 25).
+ * Updates metric counters, percentages, and visual distribution bars.
+ * Strictly uses textContent and safe DOM APIs for all dynamic values.
+ *
+ * @param {{
+ *   total: number,
+ *   counts: { recyclable: number, organic: number, ewaste: number, other: number },
+ *   percentages: { recyclable: number, organic: number, ewaste: number, other: number }
+ * }} stats
+ */
+export function renderStatistics(stats) {
+  const statusBadge = $('#stats-status-badge');
+  const emptyState = $('#stats-empty-state');
+  const contentContainer = $('#stats-content-container');
+
+  const totalCount = $('#stat-total-count');
+  const recCount = $('#stat-recyclable-count');
+  const recPct = $('#stat-recyclable-pct');
+  const orgCount = $('#stat-organic-count');
+  const orgPct = $('#stat-organic-pct');
+  const ewCount = $('#stat-ewaste-count');
+  const ewPct = $('#stat-ewaste-pct');
+
+  const recBar = $('#stat-bar-recyclable');
+  const orgBar = $('#stat-bar-organic');
+  const ewBar = $('#stat-bar-ewaste');
+
+  const recDistText = $('#stat-dist-recyclable-text');
+  const orgDistText = $('#stat-dist-organic-text');
+  const ewDistText = $('#stat-dist-ewaste-text');
+
+  if (!stats || typeof stats.total !== 'number' || stats.total === 0) {
+    // Empty state
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (contentContainer) contentContainer.classList.add('hidden');
+    if (statusBadge) statusBadge.textContent = '0 Scans Recorded';
+
+    if (totalCount) totalCount.textContent = '0';
+    if (recCount) recCount.textContent = '0';
+    if (recPct) recPct.textContent = '0%';
+    if (orgCount) orgCount.textContent = '0';
+    if (orgPct) orgPct.textContent = '0%';
+    if (ewCount) ewCount.textContent = '0';
+    if (ewPct) ewPct.textContent = '0%';
+
+    if (recBar) {
+      recBar.style.width = '0%';
+      recBar.setAttribute('aria-valuenow', '0');
+    }
+    if (orgBar) {
+      orgBar.style.width = '0%';
+      orgBar.setAttribute('aria-valuenow', '0');
+    }
+    if (ewBar) {
+      ewBar.style.width = '0%';
+      ewBar.setAttribute('aria-valuenow', '0');
+    }
+    return;
+  }
+
+  // Populated state
+  if (emptyState) emptyState.classList.add('hidden');
+  if (contentContainer) contentContainer.classList.remove('hidden');
+  if (statusBadge) {
+    statusBadge.textContent = stats.total === 1 ? '1 Scan Recorded' : `${stats.total} Scans Recorded`;
+  }
+
+  // Populate numeric counters safely via textContent
+  const counts = stats.counts || {};
+  const pcts = stats.percentages || {};
+
+  if (totalCount) totalCount.textContent = String(stats.total);
+  if (recCount) recCount.textContent = String(counts.recyclable || 0);
+  if (recPct) recPct.textContent = `${pcts.recyclable || 0}%`;
+  if (orgCount) orgCount.textContent = String(counts.organic || 0);
+  if (orgPct) orgPct.textContent = `${pcts.organic || 0}%`;
+  if (ewCount) ewCount.textContent = String(counts.ewaste || 0);
+  if (ewPct) ewPct.textContent = `${pcts.ewaste || 0}%`;
+
+  // Update visual distribution progress bars
+  const recPercentage = Math.max(0, Math.min(100, pcts.recyclable || 0));
+  const orgPercentage = Math.max(0, Math.min(100, pcts.organic || 0));
+  const ewPercentage = Math.max(0, Math.min(100, pcts.ewaste || 0));
+
+  if (recBar) {
+    recBar.style.width = `${recPercentage}%`;
+    recBar.setAttribute('aria-valuenow', String(recPercentage));
+  }
+  if (orgBar) {
+    orgBar.style.width = `${orgPercentage}%`;
+    orgBar.setAttribute('aria-valuenow', String(orgPercentage));
+  }
+  if (ewBar) {
+    ewBar.style.width = `${ewPercentage}%`;
+    ewBar.setAttribute('aria-valuenow', String(ewPercentage));
+  }
+
+  // Update distribution readable text
+  if (recDistText) {
+    recDistText.textContent = `${counts.recyclable || 0} items (${recPercentage}%)`;
+  }
+  if (orgDistText) {
+    orgDistText.textContent = `${counts.organic || 0} items (${orgPercentage}%)`;
+  }
+  if (ewDistText) {
+    ewDistText.textContent = `${counts.ewaste || 0} items (${ewPercentage}%)`;
+  }
+}
+
+/**
  * Initialize UI navigation listeners for elements with data-nav-target.
  */
 export function initUI() {

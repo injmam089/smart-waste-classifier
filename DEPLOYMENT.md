@@ -131,30 +131,23 @@ A comprehensive security audit of the repository confirmed:
 
 ---
 
-## 6. Current AI Model Situation & Configuration Guide
+## 6. Production AI Model Configuration & Status
 
 ### Current Status
 - **Classifier Pipeline:** **100% Implemented & Verified.**  
   Handles model loading states, probability normalizations, category mappings, 75% confidence thresholding, low-confidence rejection, and error recovery.
-- **Trained Model Weights:** **Pending Model Configuration.**  
-  The repository does not bundle pre-trained model binary weights. When launched without a trained model, the app displays a clear banner: *"Teachable Machine model is unconfigured"*, with a field allowing the user/deployer to enter a model URL.
+- **Production Model Endpoint:** **Configured & Validated.**  
+  The application is pre-configured with the production Google Teachable Machine model URL:
+  `https://teachablemachine.withgoogle.com/models/i63G5gVSy/`
+  defined in `js/classifier.js` (`DEFAULT_MODEL_URL`). The model automatically initializes upon launch or scan entry without requiring manual user input.
+- **Model Classes:** Trained with 3 waste categories: `Recyclable`, `Organic`, `E-Waste`.
+- **Live Weights:** Resolved directly over secure HTTPS with standard CORS headers (`Access-Control-Allow-Origin: *`).
 
-### How to Configure a Model for Production
-
-#### Option A: Load from Google Teachable Machine Cloud (Recommended for Quick Deployment)
-1. Train a model on [Google Teachable Machine](https://teachablemachine.withgoogle.com/) with 3 classes:
-   - `Recyclable` (or class labels containing plastic, paper, cardboard, can, glass)
-   - `Organic` (or class labels containing food, fruit, vegetable, leaf, compost)
-   - `E-Waste` (or class labels containing electronic, battery, cable, phone)
-2. Click **Export Model** $\rightarrow$ **TensorFlow.js** $\rightarrow$ **Upload (shareable link)**.
-3. Copy the public model URL (e.g., `https://teachablemachine.withgoogle.com/models/abc123xyz/`).
-4. Paste the URL into the **Model Configuration** input box on the Scan screen, or set it as default in `js/classifier.js`.
-
-#### Option B: Host Model Files Locally in `./model/` (Offline Capable)
-1. In Teachable Machine, click **Export Model** $\rightarrow$ **TensorFlow.js** $\rightarrow$ **Download**.
-2. Extract the downloaded zip containing `model.json`, `metadata.json`, and `weights.bin`.
-3. Place these 3 files into the `model/` folder of this repository.
-4. The application automatically checks `./model/` on startup and initializes inference if the files are present.
+### Retraining or Updating the Model
+If the model is retrained or updated in the future:
+1. Copy the newly exported Google Teachable Machine shareable URL.
+2. Update the `DEFAULT_MODEL_URL` constant in `js/classifier.js`.
+3. Alternatively, place the exported `model.json`, `metadata.json`, and `weights.bin` into `./model/`.
 
 ---
 

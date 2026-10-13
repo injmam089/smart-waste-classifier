@@ -297,20 +297,11 @@
                 <p class="text-xs text-slate-300 max-w-xs">AI is examining color, shape, texture, and edges.</p>
               </div>
 
-              <!-- AI Status 2: Model Unconfigured State -->
-              <div id="ai-unconfigured-state" class="flex flex-col items-center text-center my-1 max-w-xs w-full hidden">
-                <span class="text-2xl mb-1" aria-hidden="true">⚙️</span>
-                <h3 class="text-sm font-bold text-white mb-1">Teachable Machine Model Needed</h3>
-                <p class="text-[11px] text-slate-300 mb-3 leading-tight">
-                  Enter your published Google Teachable Machine model URL to analyze this item, or place model files in <code class="text-green-300">/model/</code>:
-                </p>
-                <div class="flex flex-col gap-2 w-full text-left">
-                  <label for="input-model-url" class="text-[11px] font-semibold text-slate-300">Model URL</label>
-                  <input id="input-model-url" type="url" aria-label="Teachable Machine Model URL" placeholder="https://teachablemachine.withgoogle.com/models/..." class="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                  <button id="btn-load-custom-model" class="w-full min-h-[44px] bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-2.5 px-3 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                    Load Model & Analyze
-                  </button>
-                </div>
+              <!-- AI Status 2: Model Configuration Fallback (Hidden in production flow) -->
+              <div id="ai-unconfigured-state" class="hidden" style="display: none;" aria-hidden="true">
+                <label for="input-model-url" class="sr-only">Model URL</label>
+                <input id="input-model-url" type="url" aria-label="Teachable Machine Model URL" placeholder="https://teachablemachine.withgoogle.com/models/..." class="hidden">
+                <button id="btn-load-custom-model" class="hidden">Load Model & Analyze</button>
               </div>
 
               <!-- AI Status 3: High-Confidence Result (>= 75%) -->

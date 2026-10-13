@@ -17,18 +17,23 @@ export const CONFIDENCE_THRESHOLD = 0.75;
 export const SUPPORTED_CATEGORIES = ['recyclable', 'organic', 'ewaste'];
 
 /**
+ * Production Google Teachable Machine image classification model URL.
+ * This is the production Teachable Machine model URL for visual waste classification.
+ * Update this constant if the model is retrained or updated in the future.
+ */
+export const DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/';
+
+/**
  * Configuration for the Teachable Machine model.
- * Defaults to the local ./model/ directory or a remote Teachable Machine URL.
- * Set to null initially if no model has been trained/placed yet.
+ * Defaults to the production Google Teachable Machine model endpoint.
  */
 let modelConfig = {
-  // If undefined, attempts local ./model/ files first or a configured remote endpoint
-  modelUrl: null,
-  metadataUrl: null
+  modelUrl: `${DEFAULT_MODEL_URL}model.json`,
+  metadataUrl: `${DEFAULT_MODEL_URL}metadata.json`
 };
 
 let loadedModel = null;
-let classifierState = 'unconfigured'; // 'unconfigured' | 'loading' | 'ready' | 'error'
+let classifierState = 'idle'; // 'idle' | 'unconfigured' | 'loading' | 'ready' | 'error'
 let lastLoadError = null;
 
 /**
@@ -205,10 +210,12 @@ export function getTopPrediction(predictions) {
     }
   }
 
+  const cleanClassName = typeof top.className === 'string' ? top.className.trim() : String(top.className || '');
+
   return {
-    className: top.className,
+    className: cleanClassName,
     probability: Number(top.probability) || 0,
-    category: normalizeCategory(top.className)
+    category: normalizeCategory(cleanClassName)
   };
 }
 
@@ -262,11 +269,24 @@ export async function predict(imageElement) {
         errorType: 'MODEL_LOADING'
       };
     }
-    return {
-      success: false,
-      error: 'AI model is not ready. Please verify model loading status.',
-      errorType: 'MODEL_NOT_READY'
-    };
+    // If model has a valid URL configured but hasn't completed loading yet, load automatically on demand
+    if (modelConfig.modelUrl) {
+      console.log('[Classifier] Model not ready; loading production model automatically on demand...');
+      const loadRes = await loadModel();
+      if (!loadRes.success || !isModelReady()) {
+        return {
+          success: false,
+          error: loadRes.error || 'AI model is not ready. Please verify model loading status.',
+          errorType: 'MODEL_NOT_READY'
+        };
+      }
+    } else {
+      return {
+        success: false,
+        error: 'AI model is not ready. Please verify model loading status.',
+        errorType: 'MODEL_NOT_READY'
+      };
+    }
   }
 
   try {

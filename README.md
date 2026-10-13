@@ -136,7 +136,7 @@ Modern web security standards enforce that `navigator.mediaDevices.getUserMedia(
 When testing on mobile devices over a local Wi-Fi network, access must be routed through an HTTPS tunnel (such as `cloudflared` or `ngrok`) or deployed to a staging host like Vercel or GitHub Pages.
 
 ## 13. Model Configuration
-The AI classifier is configured in `js/classifier.js`. It supports both bundled model paths (`./model/`) and published Google Teachable Machine cloud endpoints (`https://teachablemachine.withgoogle.com/models/<model-id>/`).
+The AI classifier is permanently pre-configured with the production Google Teachable Machine model in `js/classifier.js` (`DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/'`). The model automatically initializes when the application launches or when scanning begins. To update or retrain the model in the future, simply update the `DEFAULT_MODEL_URL` constant or place exported model files in `./model/`.
 
 ## 14. Testing
 The test plan covers 10 verification groups (A through J):

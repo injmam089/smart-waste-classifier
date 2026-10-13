@@ -30,7 +30,8 @@ import {
   getClassifierState,
   isModelReady,
   setModelConfig,
-  CONFIDENCE_THRESHOLD
+  CONFIDENCE_THRESHOLD,
+  DEFAULT_MODEL_URL
 } from './classifier.js';
 import {
   getScanHistory,
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Register PWA service worker (Phase 8)
   registerServiceWorker();
 
-  // Attempt to load model from default local path if available
+  // Automatically load the production Teachable Machine model on launch
   attemptDefaultModelLoad();
 
   // Determine initial screen from hash or default to home
@@ -74,14 +75,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * Attempts to load model from the default ./model/ directory.
- * Fails gracefully if local model files are not yet deployed.
+ * Automatically loads the production Teachable Machine model on launch.
  */
 async function attemptDefaultModelLoad() {
-  console.log('[App] Checking for default model files in ./model/...');
-  const res = await loadModel('./model/');
+  console.log('[App] Initializing production Teachable Machine model...');
+  const res = await loadModel(DEFAULT_MODEL_URL);
   if (!res.success) {
-    console.log('[App] Default model not found or unconfigured. Model will await user URL configuration.');
+    console.warn('[App] Production model load error:', res.error);
+  } else {
+    console.log('[App] Production model loaded successfully and ready.');
   }
 }
 
@@ -142,8 +144,12 @@ function setupCameraIntegration() {
       lastCapturedCanvas = null;
     }
 
-    // When entering the scan screen, initiate camera if supported
+    // When entering the scan screen, initiate camera if supported and ensure model is ready
     if (newScreen === 'scan') {
+      if (!isModelReady() && getClassifierState() !== 'loading') {
+        console.log('[App] Entering scan screen; ensuring production model is loaded...');
+        loadModel(DEFAULT_MODEL_URL);
+      }
       if (!isCameraSupported()) {
         updateCameraUI('error', {
           title: 'Camera Unsupported',
@@ -298,9 +304,13 @@ async function handleCaptureFrame() {
  */
 async function runClassification(canvas) {
   if (!isModelReady()) {
-    console.log('[App] AI model is not ready yet. Showing model configuration prompt.');
-    updateClassifierUI('unconfigured');
-    return;
+    console.log('[App] AI model is not ready yet. Awaiting production model load...');
+    updateClassifierUI('loading');
+    const loadRes = await loadModel(DEFAULT_MODEL_URL);
+    if (!loadRes.success) {
+      updateClassifierUI('error', { message: loadRes.error || 'Failed to load AI model.' });
+      return;
+    }
   }
 
   updateClassifierUI('loading');

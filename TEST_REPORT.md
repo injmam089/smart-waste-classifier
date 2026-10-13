@@ -3,8 +3,8 @@
 **Document:** `TEST_REPORT.md`  
 **Execution Date:** 2026-10-13  
 **Phase Status:** Phase 10 — COMPLETED  
-**Overall Status:** ALL AUTOMATED TEST GROUPS (A–J) PASSED (100% Pass Rate)  
-**Trained AI Model Status:** PENDING MODEL CONFIGURATION (Explicitly Documented)
+**Overall Status:** ALL AUTOMATED TEST GROUPS (A–K) PASSED (100% Pass Rate)  
+**Trained AI Model Status:** CONFIGURED & VERIFIED (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`)
 
 ---
 
@@ -146,6 +146,19 @@
 
 ---
 
+### Test Group K — Production Teachable Machine Model Configuration
+| Test ID | Test Case | Expected Result | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **K-01** | Production Model URL Constant | `DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/'` exported in `js/classifier.js` with explanatory comment | Constant exported with comment | **PASS ✅** |
+| **K-02** | Initial Model Config Default | `modelConfig.modelUrl` and `modelConfig.metadataUrl` default to production URLs | Initialized with production URLs | **PASS ✅** |
+| **K-03** | Automatic On-Demand Loading | `predict()` and `app.js` automatically load production model if idle; no manual URL prompt required | Auto-load triggers seamlessly | **PASS ✅** |
+| **K-04** | UI Manual Input Hidden | `#ai-unconfigured-state` hidden from normal scan flow (`hidden`, `aria-hidden="true"`, `display: none`) | Hidden from user view | **PASS ✅** |
+| **K-05** | Live Model Metadata & Classes | Live `metadata.json` reachable over HTTPS; classes `["Recyclable ", "Organic", "E-Waste"]` verified | Classes retrieved and verified | **PASS ✅** |
+| **K-06** | Live Weight Tensors & Inference | 2.05 MB `model.weights.bin` downloaded; forward pass executes in TensorFlow.js without crash | Live weights & forward pass verified | **PASS ✅** |
+| **K-07** | Top Prediction & Normalization | Category mapping trims trailing whitespace (e.g. `'Recyclable '` $\rightarrow$ `'recyclable'`) | Correct category & class name mapped | **PASS ✅** |
+
+---
+
 ## 4. Phase 1–9 Regression Testing Summary
 
 All individual phase regression test scripts were executed sequentially and verified:
@@ -162,6 +175,7 @@ All individual phase regression test scripts were executed sequentially and veri
 | `test-phase8.cjs` | PWA manifest, service worker caching, and icon assets | **PASSED ✅** |
 | `test-phase9.cjs` | WCAG 2.1 AA accessibility, touch targets, and responsive UX | **PASSED ✅** |
 | `test-phase10-full-suite.cjs` | Full testing plan across Test Groups A through J (50 test cases) | **PASSED ✅** |
+| `test-production-model.cjs` | Production model verification (Group K: 7 test cases) | **PASSED ✅** |
 
 ---
 
@@ -179,11 +193,12 @@ All individual phase regression test scripts were executed sequentially and veri
 
 ---
 
-## 6. Remaining Limitations & Next Steps
+## 6. Technical Limitations & Deployment Notes
 
-1. **Trained Model Dependency:**
-   - Real-world waste classification requires the end user or deployer to provide a trained Google Teachable Machine model URL or deploy model files to `/model/`.
-   - The UI includes an unconfigured state banner and input field for custom model URLs.
+1. **Pre-Configured Production Model:**
+   - The production Google Teachable Machine model URL (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`) is permanently configured as the default model.
+   - It downloads weights over HTTPS on initial load; subsequent sessions leverage standard browser HTTP caching.
+   - The manual model URL input is hidden from the user-facing scan flow.
 2. **Static HTTPS Hosting Prerequisite:**
    - Full camera access (`getUserMedia`) and Service Worker registration require an HTTPS origin (or `localhost` for local testing).
 

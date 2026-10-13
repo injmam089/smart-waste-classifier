@@ -3,7 +3,7 @@
  * Handles screen transitions, accessible navigation, view states, and camera UI.
  */
 
-import { $, $$ } from './utils.js';
+import { $, $$, formatConfidence, formatDate } from './utils.js';
 import { getWasteGuidance } from './waste-data.js';
 
 /**
@@ -486,6 +486,156 @@ function populateGuidanceList(ulElement, items) {
 }
 
 /**
+ * Visual badge styling presets for scan history categories.
+ */
+const categoryStyles = {
+  recyclable: {
+    icon: '♻️',
+    label: 'Recyclable',
+    badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+  },
+  organic: {
+    icon: '🌱',
+    label: 'Organic',
+    badgeClass: 'bg-lime-100 text-lime-800 border-lime-200'
+  },
+  ewaste: {
+    icon: '🔋',
+    label: 'E-Waste',
+    badgeClass: 'bg-amber-100 text-amber-900 border-amber-200'
+  },
+  unknown: {
+    icon: '📦',
+    label: 'Uncategorized',
+    badgeClass: 'bg-slate-100 text-slate-800 border-slate-200'
+  }
+};
+
+/**
+ * Renders the persistent scan history list into the History screen.
+ * Safely creates DOM elements and utilizes textContent to prevent XSS.
+ *
+ * @param {Array<Object>} historyRecords
+ */
+export function renderHistory(historyRecords) {
+  const badgeEl = $('#history-count-badge');
+  const btnClear = $('#btn-clear-history');
+  const emptyStateEl = $('#history-empty-state');
+  const listContainerEl = $('#history-list-container');
+  const itemsListEl = $('#history-items-list');
+
+  const records = Array.isArray(historyRecords) ? historyRecords : [];
+
+  // Update badge count
+  if (badgeEl) {
+    badgeEl.textContent = records.length === 1 ? '1 Saved Scan' : `${records.length} Saved Scans`;
+  }
+
+  // Handle empty state
+  if (records.length === 0) {
+    if (emptyStateEl) emptyStateEl.classList.remove('hidden');
+    if (listContainerEl) listContainerEl.classList.add('hidden');
+    if (btnClear) {
+      btnClear.disabled = true;
+      btnClear.className = 'text-xs font-semibold text-slate-400 bg-slate-100 px-3.5 py-2 rounded-xl cursor-not-allowed transition-colors self-start sm:self-auto flex items-center gap-1.5';
+    }
+    if (itemsListEl) {
+      while (itemsListEl.firstChild) {
+        itemsListEl.removeChild(itemsListEl.firstChild);
+      }
+    }
+    return;
+  }
+
+  // Handle populated state
+  if (emptyStateEl) emptyStateEl.classList.add('hidden');
+  if (listContainerEl) listContainerEl.classList.remove('hidden');
+  if (btnClear) {
+    btnClear.disabled = false;
+    btnClear.className = 'text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 px-3.5 py-2 rounded-xl cursor-pointer transition-colors self-start sm:self-auto flex items-center gap-1.5 shadow-2xs';
+  }
+
+  if (!itemsListEl) return;
+
+  // Clear existing items safely
+  while (itemsListEl.firstChild) {
+    itemsListEl.removeChild(itemsListEl.firstChild);
+  }
+
+  // Render cards sorted newest first
+  records.forEach((record) => {
+    const catKey = (record.category || 'unknown').toLowerCase();
+    const style = categoryStyles[catKey] || categoryStyles.unknown;
+
+    const li = document.createElement('li');
+    li.className = 'bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/90 rounded-2xl p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs';
+
+    // Left block: category badge + predicted class
+    const leftDiv = document.createElement('div');
+    leftDiv.className = 'space-y-1.5';
+
+    const badgeDiv = document.createElement('div');
+    badgeDiv.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${style.badgeClass}`;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.setAttribute('aria-hidden', 'true');
+    iconSpan.textContent = style.icon;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = style.label;
+
+    badgeDiv.appendChild(iconSpan);
+    badgeDiv.appendChild(labelSpan);
+
+    const classHeading = document.createElement('h3');
+    classHeading.className = 'text-base font-bold text-slate-900';
+    classHeading.textContent = record.predictedClass || style.label;
+
+    leftDiv.appendChild(badgeDiv);
+    leftDiv.appendChild(classHeading);
+
+    // Right block: confidence score + formatted timestamp
+    const rightDiv = document.createElement('div');
+    rightDiv.className = 'flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 text-right';
+
+    const confSpan = document.createElement('span');
+    confSpan.className = 'text-xs font-extrabold text-green-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full shadow-2xs';
+    confSpan.textContent = formatConfidence(record.confidence);
+
+    const timeEl = document.createElement('time');
+    timeEl.className = 'text-xs text-slate-500 whitespace-nowrap';
+    timeEl.setAttribute('datetime', record.timestamp || '');
+    timeEl.textContent = formatDate(record.timestamp);
+
+    rightDiv.appendChild(confSpan);
+    rightDiv.appendChild(timeEl);
+
+    li.appendChild(leftDiv);
+    li.appendChild(rightDiv);
+
+    itemsListEl.appendChild(li);
+  });
+}
+
+/**
+ * Toggles visibility of the Clear History confirmation modal.
+ * @param {boolean} isOpen
+ */
+export function showClearHistoryModal(isOpen) {
+  const modal = $('#modal-clear-history');
+  if (!modal) return;
+  if (isOpen) {
+    modal.classList.remove('hidden');
+    const cancelBtn = $('#btn-cancel-clear-history');
+    if (cancelBtn) cancelBtn.focus();
+  } else {
+    modal.classList.add('hidden');
+    const clearBtn = $('#btn-clear-history');
+    if (clearBtn && !clearBtn.disabled) clearBtn.focus();
+  }
+}
+
+/**
  * Initialize UI navigation listeners for elements with data-nav-target.
  */
 export function initUI() {
@@ -507,3 +657,4 @@ export function initUI() {
     }
   });
 }
+

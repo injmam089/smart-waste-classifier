@@ -560,28 +560,54 @@
         <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
           <span aria-hidden="true">←</span> Back to Home
         </button>
-        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+        <span id="history-count-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">0 Saved Scans</span>
       </div>
 
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-6">
           <div>
             <h2 id="history-heading" class="text-2xl font-bold text-slate-900">Scan History</h2>
-            <p class="text-sm text-slate-600">Saved classifications on this device.</p>
+            <p class="text-sm text-slate-600">Saved classifications on this device (client-side only).</p>
           </div>
-          <button disabled class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg cursor-not-allowed">
-            Clear History
+          <button id="btn-clear-history" disabled class="text-xs font-semibold text-slate-400 bg-slate-100 px-3.5 py-2 rounded-xl cursor-not-allowed transition-colors self-start sm:self-auto flex items-center gap-1.5">
+            <span>🗑️</span> Clear History
           </button>
         </div>
 
         <!-- Empty State Container -->
-        <div class="py-12 flex flex-col items-center justify-center text-center">
+        <div id="history-empty-state" class="py-12 flex flex-col items-center justify-center text-center">
           <span class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mb-4" aria-hidden="true">📜</span>
           <h3 class="text-lg font-bold text-slate-800 mb-1">No Scans Yet</h3>
           <p class="text-sm text-slate-500 max-w-sm mb-6">Start your first waste scan to record and review your disposal history.</p>
           <button data-nav-target="scan" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-sm">
             <span>📷 Start Scanning</span>
           </button>
+        </div>
+
+        <!-- Populated History List Container -->
+        <div id="history-list-container" class="hidden">
+          <ul id="history-items-list" class="space-y-3" role="list" aria-label="Waste scan history list">
+            <!-- Populated dynamically via ui.js renderHistory() -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Clear History Confirmation Modal (FR-14) -->
+      <div id="modal-clear-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="clear-history-title">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200 transform transition-all">
+          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl mx-auto mb-3" aria-hidden="true">🗑️</div>
+          <h3 id="clear-history-title" class="text-lg font-bold text-slate-900 text-center mb-2">Clear All Scan History?</h3>
+          <p class="text-xs text-slate-600 text-center mb-6 leading-relaxed">
+            This will permanently delete all scan records saved in your browser's LocalStorage. This action cannot be undone.
+          </p>
+          <div class="flex gap-3">
+            <button id="btn-cancel-clear-history" type="button" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl transition-colors text-sm">
+              Cancel
+            </button>
+            <button id="btn-confirm-clear-history" type="button" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2.5 rounded-xl transition-colors shadow-sm text-sm">
+              Yes, Clear
+            </button>
+          </div>
         </div>
       </div>
     </section>

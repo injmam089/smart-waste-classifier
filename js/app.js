@@ -3,7 +3,7 @@
  * Integrates UI navigation, Phase 2 Camera Module, and Phase 3 AI Classifier Module.
  */
 
-import { $, $$ } from './utils.js';
+import { $, $$, generateId } from './utils.js';
 import {
   initUI,
   showScreen,
@@ -11,7 +11,9 @@ import {
   onScreenChange,
   updateCameraUI,
   updateClassifierUI,
-  renderClassificationResult
+  renderClassificationResult,
+  renderHistory,
+  showClearHistoryModal
 } from './ui.js';
 import {
   startCamera,
@@ -29,6 +31,12 @@ import {
   setModelConfig,
   CONFIDENCE_THRESHOLD
 } from './classifier.js';
+import {
+  getScanHistory,
+  saveScan,
+  clearScanHistory,
+  getStatistics
+} from './storage.js';
 
 let lastCapturedCanvas = null;
 
@@ -43,6 +51,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Set up model loading and custom URL inputs
   setupClassifierIntegration();
+
+  // Set up local scan history controls (Phase 6)
+  setupHistoryIntegration();
 
   // Attempt to load model from default local path if available
   attemptDefaultModelLoad();
@@ -174,6 +185,59 @@ function setupClassifierIntegration() {
 }
 
 /**
+ * Configures scan history UI interactions, confirmation modal, and screen rendering.
+ */
+function setupHistoryIntegration() {
+  const btnClear = $('#btn-clear-history');
+  const btnCancel = $('#btn-cancel-clear-history');
+  const btnConfirm = $('#btn-confirm-clear-history');
+  const modal = $('#modal-clear-history');
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      showClearHistoryModal(true);
+    });
+  }
+
+  if (btnCancel) {
+    btnCancel.addEventListener('click', () => {
+      showClearHistoryModal(false);
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (event) => {
+      // Close modal if user clicks on backdrop outside the modal card
+      if (event.target === modal) {
+        showClearHistoryModal(false);
+      }
+    });
+  }
+
+  if (btnConfirm) {
+    btnConfirm.addEventListener('click', () => {
+      console.log('[App] Clearing all scan history from LocalStorage...');
+      clearScanHistory();
+      showClearHistoryModal(false);
+      renderHistory(getScanHistory());
+
+      const announcer = $('#screen-announcer');
+      if (announcer) {
+        announcer.textContent = 'All scan history has been cleared.';
+      }
+    });
+  }
+
+  // When switching to the history screen, refresh the history list
+  onScreenChange((newScreen) => {
+    if (newScreen === 'history') {
+      console.log('[App] Refreshing history screen view...');
+      renderHistory(getScanHistory());
+    }
+  });
+}
+
+/**
  * Starts the camera stream and updates UI states accordingly.
  */
 async function initiateCameraStream() {
@@ -221,6 +285,7 @@ async function handleCaptureFrame() {
 
 /**
  * Runs the AI classification pipeline on a canvas input.
+ * Persists confident classifications to LocalStorage (FR-09, FR-12).
  * @param {HTMLCanvasElement} canvas
  */
 async function runClassification(canvas) {
@@ -236,6 +301,23 @@ async function runClassification(canvas) {
 
   // Render on dedicated Result Screen
   renderClassificationResult(result, dataUrl);
+
+  // If classification was confident (>= 75%), save scan metadata to LocalStorage (FR-09 & FR-12)
+  if (result.success && result.isConfident && result.topPrediction) {
+    const scanRecord = {
+      scanId: generateId('scan'),
+      timestamp: new Date().toISOString(),
+      category: result.topPrediction.category,
+      predictedClass: result.topPrediction.className,
+      confidence: result.topPrediction.probability,
+      guidanceKey: result.topPrediction.category
+    };
+
+    const saveResult = saveScan(scanRecord);
+    if (!saveResult.success) {
+      console.warn('[App] Could not persist scan history:', saveResult.error);
+    }
+  }
 
   // Transition to Result Screen
   showScreen('result');

@@ -210,7 +210,7 @@
          ========================================================================= -->
     <section id="screen-scan" class="app-screen" aria-labelledby="scan-heading">
       <div class="flex items-center justify-between mb-4">
-        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Back to Home">
           <span aria-hidden="true">←</span> Back to Home
         </button>
         <span id="camera-status-badge" class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full flex items-center gap-1.5">
@@ -304,9 +304,10 @@
                 <p class="text-[11px] text-slate-300 mb-3 leading-tight">
                   Enter your published Google Teachable Machine model URL to analyze this item, or place model files in <code class="text-green-300">/model/</code>:
                 </p>
-                <div class="flex flex-col gap-2 w-full">
-                  <input id="input-model-url" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." class="w-full px-2.5 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
-                  <button id="btn-load-custom-model" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-colors shadow-sm">
+                <div class="flex flex-col gap-2 w-full text-left">
+                  <label for="input-model-url" class="text-[11px] font-semibold text-slate-300">Model URL</label>
+                  <input id="input-model-url" type="url" aria-label="Teachable Machine Model URL" placeholder="https://teachablemachine.withgoogle.com/models/..." class="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <button id="btn-load-custom-model" class="w-full min-h-[44px] bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-2.5 px-3 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
                     Load Model & Analyze
                   </button>
                 </div>
@@ -402,7 +403,7 @@
          ========================================================================= -->
     <section id="screen-result" class="app-screen" aria-labelledby="result-heading">
       <div class="flex items-center justify-between mb-4">
-        <button data-nav-target="scan" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+        <button data-nav-target="scan" class="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Back to Scan">
           <span aria-hidden="true">←</span> Back to Scan
         </button>
         <span id="result-status-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">
@@ -566,7 +567,7 @@
          ========================================================================= -->
     <section id="screen-history" class="app-screen" aria-labelledby="history-heading">
       <div class="flex items-center justify-between mb-4">
-        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Back to Home">
           <span aria-hidden="true">←</span> Back to Home
         </button>
         <span id="history-count-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">0 Saved Scans</span>
@@ -626,7 +627,7 @@
          ========================================================================= -->
     <section id="screen-statistics" class="app-screen" aria-labelledby="stats-heading">
       <div class="flex items-center justify-between mb-4">
-        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Back to Home">
           <span aria-hidden="true">←</span> Back to Home
         </button>
         <span id="stats-status-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">0 Scans Recorded</span>
@@ -746,10 +747,10 @@
          ========================================================================= -->
     <section id="screen-about" class="app-screen" aria-labelledby="about-heading">
       <div class="flex items-center justify-between mb-4">
-        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Back to Home">
           <span aria-hidden="true">←</span> Back to Home
         </button>
-        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">PWA Verified</span>
       </div>
 
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
@@ -788,32 +789,32 @@
 
   </main>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 z-30 shadow-lg" aria-label="Mobile Navigation">
+  <!-- Mobile Bottom Navigation Bar (WCAG Touch Target & Safe-Area Inset) -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] z-30 shadow-lg" aria-label="Mobile Navigation">
     <div class="grid grid-cols-5 gap-1 max-w-md mx-auto">
-      <button data-nav-target="home" class="flex flex-col items-center justify-center p-2 rounded-xl text-green-700 font-bold transition-colors" aria-label="Home" aria-current="page">
+      <button data-nav-target="home" class="flex flex-col items-center justify-center min-h-[48px] p-1.5 rounded-xl text-green-700 font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Home" aria-current="page">
         <span class="text-xl" aria-hidden="true">🏠</span>
-        <span class="text-[10px] mt-0.5">Home</span>
+        <span class="text-[10px] mt-0.5 font-semibold">Home</span>
       </button>
 
-      <button data-nav-target="scan" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="Scan">
+      <button data-nav-target="scan" class="flex flex-col items-center justify-center min-h-[48px] p-1.5 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Scan">
         <span class="text-xl" aria-hidden="true">📷</span>
-        <span class="text-[10px] mt-0.5">Scan</span>
+        <span class="text-[10px] mt-0.5 font-semibold">Scan</span>
       </button>
 
-      <button data-nav-target="history" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="History">
+      <button data-nav-target="history" class="flex flex-col items-center justify-center min-h-[48px] p-1.5 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="History">
         <span class="text-xl" aria-hidden="true">📜</span>
-        <span class="text-[10px] mt-0.5">History</span>
+        <span class="text-[10px] mt-0.5 font-semibold">History</span>
       </button>
 
-      <button data-nav-target="statistics" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="Statistics">
+      <button data-nav-target="statistics" class="flex flex-col items-center justify-center min-h-[48px] p-1.5 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="Statistics">
         <span class="text-xl" aria-hidden="true">📊</span>
-        <span class="text-[10px] mt-0.5">Stats</span>
+        <span class="text-[10px] mt-0.5 font-semibold">Stats</span>
       </button>
 
-      <button data-nav-target="about" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="About">
+      <button data-nav-target="about" class="flex flex-col items-center justify-center min-h-[48px] p-1.5 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600" aria-label="About">
         <span class="text-xl" aria-hidden="true">ℹ️</span>
-        <span class="text-[10px] mt-0.5">About</span>
+        <span class="text-[10px] mt-0.5 font-semibold">About</span>
       </button>
     </div>
   </nav>

@@ -27,12 +27,29 @@ html, body {
   color: #1e293b;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Touch action optimization for mobile */
+button, a, input {
+  touch-action: manipulation;
 }
 
 /* Accessibility: Focus Indicators */
 :focus-visible {
   outline: 3px solid #15803d;
   outline-offset: 2px;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Skip Navigation Link */

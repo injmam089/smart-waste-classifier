@@ -414,6 +414,11 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
       statusBadge.textContent = 'Classification Confident';
       statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full';
     }
+
+    const announcer = $('#screen-announcer');
+    if (announcer) {
+      announcer.textContent = `Classification complete: ${top.className}, identified as ${top.category} with ${Math.round(top.probability * 100)}% confidence.`;
+    }
     return;
   }
 
@@ -443,6 +448,11 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
       statusBadge.textContent = 'Uncertain Classification';
       statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full';
     }
+
+    const announcer = $('#screen-announcer');
+    if (announcer) {
+      announcer.textContent = 'Classification uncertain: confidence is below 75% threshold. Please try scanning again with clear lighting.';
+    }
     return;
   }
 
@@ -455,6 +465,11 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
   if (statusBadge) {
     statusBadge.textContent = 'Analysis Failed';
     statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full';
+  }
+
+  const announcer = $('#screen-announcer');
+  if (announcer) {
+    announcer.textContent = 'Classification error: ' + (resultData.error || 'Failed to analyze image.');
   }
 }
 
@@ -764,6 +779,33 @@ export function initUI() {
     const hash = window.location.hash.replace('#', '').trim();
     if (hash && SCREENS.includes(hash)) {
       showScreen(hash);
+    }
+  });
+
+  // Accessibility: Keyboard handlers for dialogs and modal traps
+  document.addEventListener('keydown', (event) => {
+    const modal = $('#modal-clear-history');
+    if (!modal || modal.classList.contains('hidden')) return;
+
+    // Close modal on Escape key
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      showClearHistoryModal(false);
+      return;
+    }
+
+    // Accessible Focus Trap: Cycle between Cancel and Confirm buttons
+    if (event.key === 'Tab') {
+      const cancelBtn = $('#btn-cancel-clear-history');
+      const confirmBtn = $('#btn-confirm-clear-history');
+
+      if (event.shiftKey && document.activeElement === cancelBtn) {
+        event.preventDefault();
+        if (confirmBtn) confirmBtn.focus();
+      } else if (!event.shiftKey && document.activeElement === confirmBtn) {
+        event.preventDefault();
+        if (cancelBtn) cancelBtn.focus();
+      }
     }
   });
 }

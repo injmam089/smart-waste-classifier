@@ -262,6 +262,180 @@ export function updateClassifierUI(state, data = {}) {
 }
 
 /**
+ * Renders dynamic classification results on the dedicated #screen-result screen.
+ * Strictly uses real model output values from classifier.predict().
+ *
+ * @param {Object} resultData Output object from classifier.predict()
+ * @param {string} [capturedDataUrl=''] Data URL of the captured video frame
+ */
+export function renderClassificationResult(resultData, capturedDataUrl = '') {
+  const viewConfident = $('#result-view-confident');
+  const viewUncertain = $('#result-view-uncertain');
+  const viewError = $('#result-view-error');
+  const statusBadge = $('#result-status-badge');
+
+  // Hide all view variants initially
+  [viewConfident, viewUncertain, viewError].forEach((v) => {
+    if (v) v.classList.add('hidden');
+  });
+
+  if (!resultData) {
+    if (viewError) viewError.classList.remove('hidden');
+    const msg = $('#result-error-message');
+    if (msg) msg.textContent = 'No classification data received.';
+    if (statusBadge) {
+      statusBadge.textContent = 'Classification Error';
+      statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full';
+    }
+    return;
+  }
+
+  // 1. High-Confidence Result (isConfident === true, probability >= 0.75)
+  if (resultData.success && resultData.isConfident && resultData.topPrediction) {
+    if (viewConfident) viewConfident.classList.remove('hidden');
+
+    const top = resultData.topPrediction;
+    const probability = Number(top.probability) || 0;
+    const pct = Math.round(probability * 100);
+
+    // Update thumbnail
+    const thumbImg = $('#result-captured-thumbnail');
+    if (thumbImg) {
+      if (capturedDataUrl) {
+        thumbImg.src = capturedDataUrl;
+        thumbImg.parentElement.classList.remove('hidden');
+      } else {
+        thumbImg.parentElement.classList.add('hidden');
+      }
+    }
+
+    // Category dictionary mapping
+    const categoryConfigs = {
+      recyclable: {
+        label: 'Recyclable',
+        icon: '♻️',
+        cardClass: 'bg-emerald-50/70 border-emerald-200',
+        badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+        barColor: 'bg-emerald-600',
+        pillColor: 'text-emerald-700'
+      },
+      organic: {
+        label: 'Organic',
+        icon: '🌱',
+        cardClass: 'bg-lime-50/70 border-lime-200',
+        badgeClass: 'bg-lime-100 text-lime-900 border-lime-300',
+        barColor: 'bg-lime-600',
+        pillColor: 'text-lime-700'
+      },
+      ewaste: {
+        label: 'E-Waste',
+        icon: '🔋',
+        cardClass: 'bg-amber-50/70 border-amber-200',
+        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+        barColor: 'bg-amber-600',
+        pillColor: 'text-amber-700'
+      },
+      unknown: {
+        label: 'Uncategorized',
+        icon: '📦',
+        cardClass: 'bg-slate-50 border-slate-200',
+        badgeClass: 'bg-slate-100 text-slate-800 border-slate-300',
+        barColor: 'bg-slate-600',
+        pillColor: 'text-slate-700'
+      }
+    };
+
+    const config = categoryConfigs[top.category] || categoryConfigs.unknown;
+
+    // Apply category styles to container & badge
+    const cardContainer = $('#result-card-container');
+    if (cardContainer) {
+      cardContainer.className = `rounded-2xl p-6 mb-6 border transition-all text-center ${config.cardClass}`;
+    }
+
+    const badgeEl = $('#result-category-badge');
+    if (badgeEl) {
+      badgeEl.className = `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-bold mb-3 shadow-xs border ${config.badgeClass}`;
+    }
+
+    const iconEl = $('#result-category-icon');
+    if (iconEl) iconEl.textContent = config.icon;
+
+    const labelEl = $('#result-category-label');
+    if (labelEl) labelEl.textContent = config.label;
+
+    // Model class name
+    const classNameEl = $('#result-class-name');
+    if (classNameEl) classNameEl.textContent = top.className || config.label;
+
+    // Confidence pill & bar
+    const confPill = $('#result-confidence-pill');
+    if (confPill) {
+      confPill.textContent = `${pct}%`;
+      confPill.className = `font-bold ${config.pillColor}`;
+    }
+
+    const confBar = $('#result-confidence-bar');
+    if (confBar) {
+      confBar.className = `h-full rounded-full transition-all duration-500 ${config.barColor}`;
+      confBar.style.width = `${pct}%`;
+    }
+
+    // Explanation
+    const explanationEl = $('#result-explanation');
+    if (explanationEl) {
+      explanationEl.textContent = `Visual feature analysis matched this item's optical characteristics (color, shape, contours, edges, and textures) to "${top.className}" with ${pct}% model confidence.`;
+    }
+
+    if (statusBadge) {
+      statusBadge.textContent = 'Classification Confident';
+      statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full';
+    }
+    return;
+  }
+
+  // 2. Low-Confidence / Uncertain Result (< 75%)
+  if (resultData.success && !resultData.isConfident && resultData.topPrediction) {
+    if (viewUncertain) viewUncertain.classList.remove('hidden');
+
+    const top = resultData.topPrediction;
+    const pct = Math.round(Number(top.probability) * 100) || 0;
+
+    const thumbImg = $('#result-uncertain-thumbnail');
+    if (thumbImg) {
+      if (capturedDataUrl) {
+        thumbImg.src = capturedDataUrl;
+        thumbImg.parentElement.classList.remove('hidden');
+      } else {
+        thumbImg.parentElement.classList.add('hidden');
+      }
+    }
+
+    const confNotice = $('#result-uncertain-confidence');
+    if (confNotice) {
+      confNotice.textContent = `${pct}% Confidence (Below 75% required threshold)`;
+    }
+
+    if (statusBadge) {
+      statusBadge.textContent = 'Uncertain Classification';
+      statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full';
+    }
+    return;
+  }
+
+  // 3. Error Result
+  if (viewError) viewError.classList.remove('hidden');
+  const msgEl = $('#result-error-message');
+  if (msgEl) {
+    msgEl.textContent = resultData.error || "We couldn't analyze this image. Please try again.";
+  }
+  if (statusBadge) {
+    statusBadge.textContent = 'Analysis Failed';
+    statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full';
+  }
+}
+
+/**
  * Initialize UI navigation listeners for elements with data-nav-target.
  */
 export function initUI() {

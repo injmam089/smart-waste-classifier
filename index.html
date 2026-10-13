@@ -396,29 +396,129 @@
         <button data-nav-target="scan" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
           <span aria-hidden="true">←</span> Back to Scan
         </button>
-        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+        <span id="result-status-badge" class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">
+          AI Analysis Complete
+        </span>
       </div>
 
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
         <div class="max-w-md mx-auto text-center">
-          <h2 id="result-heading" class="text-2xl font-bold text-slate-900 mb-2">Classification Result</h2>
-          <p class="text-sm text-slate-600 mb-6">AI analysis and disposal guidance view.</p>
+          <h2 id="result-heading" class="text-2xl font-bold text-slate-900 mb-1">Classification Result</h2>
+          <p class="text-xs text-slate-500 mb-6">Based on client-side visual feature analysis</p>
 
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
-            <span class="text-4xl block mb-2" aria-hidden="true">♻️</span>
-            <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full mb-2">Preview Layout</span>
-            <h3 class="text-xl font-bold text-slate-800 mb-1">Recyclable Material</h3>
-            <p class="text-sm text-slate-600">Sample classification output container configured for Phase 4.</p>
+          <!-- VIEW 1: Confident Classification Result (>= 75%) -->
+          <div id="result-view-confident" class="hidden">
+            <!-- Captured Frame Thumbnail -->
+            <div class="w-32 h-24 mx-auto rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm mb-4 bg-slate-100">
+              <img id="result-captured-thumbnail" src="" alt="Classified waste item" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Dynamic Category Card Container -->
+            <div id="result-card-container" class="rounded-2xl p-6 mb-6 border transition-all text-center">
+              <!-- Category Badge -->
+              <div id="result-category-badge" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-bold mb-3 shadow-xs">
+                <span id="result-category-icon" class="text-lg" aria-hidden="true">♻️</span>
+                <span id="result-category-label">Recyclable</span>
+              </div>
+
+              <!-- Original Model Class Label -->
+              <h3 id="result-class-name" class="text-2xl font-extrabold text-slate-900 mb-2">
+                <!-- Populated dynamically -->
+              </h3>
+
+              <!-- Confidence Percentage Pill & Bar -->
+              <div class="max-w-xs mx-auto mb-4">
+                <div class="flex items-center justify-between text-xs font-semibold mb-1 text-slate-600">
+                  <span>Model Confidence</span>
+                  <span id="result-confidence-pill" class="font-bold text-green-700">94%</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div id="result-confidence-bar" class="h-full bg-green-600 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Visual Feature Analysis Explanation -->
+              <div class="bg-white/80 rounded-xl p-3 border border-slate-200/60 text-left">
+                <p class="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <span>🔬</span> Visual Feature Analysis
+                </p>
+                <p id="result-explanation" class="text-xs text-slate-600 leading-relaxed">
+                  <!-- Populated dynamically -->
+                </p>
+              </div>
+
+              <!-- Disposal Guidance Placeholder (Connected in Phase 5) -->
+              <div id="result-guidance-container" class="mt-4 pt-4 border-t border-slate-200/60 text-left text-xs text-slate-500">
+                <span class="font-semibold text-slate-700 block mb-1">Disposal Guidance</span>
+                <p id="result-guidance-placeholder" class="italic text-slate-500">
+                  Detailed disposal instructions will be provided in Phase 5.
+                </p>
+              </div>
+            </div>
+
+            <!-- Confident View Actions -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button id="btn-result-scan-again" data-nav-target="scan" class="flex-1 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                📷 Scan Another Item
+              </button>
+              <button data-nav-target="history" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3.5 rounded-xl transition-colors">
+                📜 View History
+              </button>
+            </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button data-nav-target="scan" class="flex-1 bg-green-700 hover:bg-green-800 text-white font-bold px-6 py-3 rounded-xl transition-colors">
-              Scan Again
-            </button>
-            <button data-nav-target="history" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3 rounded-xl transition-colors">
-              View History
-            </button>
+          <!-- VIEW 2: Low-Confidence / Uncertain Result (< 75%) -->
+          <div id="result-view-uncertain" class="hidden">
+            <!-- Captured Frame Thumbnail -->
+            <div class="w-32 h-24 mx-auto rounded-xl overflow-hidden border-2 border-amber-300 shadow-sm mb-4 bg-slate-100">
+              <img id="result-uncertain-thumbnail" src="" alt="Uncertain waste item" class="w-full h-full object-cover">
+            </div>
+
+            <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-6 mb-6 text-center">
+              <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mx-auto mb-3" aria-hidden="true">⚠️</span>
+              <h3 class="text-xl font-bold text-amber-950 mb-1">Unable to Identify Accurately</h3>
+              <p id="result-uncertain-confidence" class="text-xs font-semibold text-amber-800 mb-4 inline-block px-3 py-1 bg-amber-100 rounded-full border border-amber-300">
+                Confidence below 75% threshold
+              </p>
+
+              <div class="bg-white rounded-xl p-4 border border-amber-200 text-left mb-2">
+                <p class="text-xs font-bold text-amber-900 mb-2">Tips to Improve Accuracy:</p>
+                <ul class="text-xs text-amber-950 space-y-1.5 list-disc list-inside">
+                  <li>Ensure bright, even lighting without harsh shadows or glare</li>
+                  <li>Place the item against a clean, plain background</li>
+                  <li>Keep only one object centered in the camera viewfinder</li>
+                  <li>Hold the camera steady and fill about half the frame</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button id="btn-result-retry" data-nav-target="scan" class="flex-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                🔄 Try Again / Rescan
+              </button>
+              <button data-nav-target="home" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3.5 rounded-xl transition-colors">
+                Return Home
+              </button>
+            </div>
           </div>
+
+          <!-- VIEW 3: Error State -->
+          <div id="result-view-error" class="hidden">
+            <div class="bg-rose-50 border border-rose-200 rounded-2xl p-6 mb-6 text-center">
+              <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-800 flex items-center justify-center text-2xl mx-auto mb-3" aria-hidden="true">⚠️</span>
+              <h3 class="text-xl font-bold text-rose-950 mb-1">Classification Error</h3>
+              <p id="result-error-message" class="text-xs text-rose-800 mb-4">
+                We couldn't analyze this image. Please try again.
+              </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button data-nav-target="scan" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                📷 Return to Scan
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

@@ -4,7 +4,15 @@
  */
 
 import { $, $$ } from './utils.js';
-import { initUI, showScreen, SCREENS, onScreenChange, updateCameraUI, updateClassifierUI } from './ui.js';
+import {
+  initUI,
+  showScreen,
+  SCREENS,
+  onScreenChange,
+  updateCameraUI,
+  updateClassifierUI,
+  renderClassificationResult
+} from './ui.js';
 import {
   startCamera,
   stopCamera,
@@ -224,16 +232,13 @@ async function runClassification(canvas) {
 
   updateClassifierUI('loading');
   const result = await predict(canvas);
+  const dataUrl = canvas.toDataURL ? canvas.toDataURL('image/jpeg', 0.85) : '';
 
-  if (result.success) {
-    if (result.isConfident) {
-      updateClassifierUI('confident', result);
-    } else {
-      updateClassifierUI('uncertain', result);
-    }
-  } else {
-    updateClassifierUI('error', { message: result.error });
-  }
+  // Render on dedicated Result Screen
+  renderClassificationResult(result, dataUrl);
+
+  // Transition to Result Screen
+  showScreen('result');
 }
 
 /**

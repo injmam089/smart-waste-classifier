@@ -111,6 +111,28 @@ html, body {
   border-bottom-right-radius: 6px;
 }
 
+/* Viewfinder Elements */
+.viewfinder-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.viewfinder-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
 /* Scanning Pulse Laser Line (CSS Animation) */
 .scan-laser {
   position: absolute;

@@ -1,186 +1,870 @@
-# Smart Waste Classifier App
+<div align="center">
 
-An AI-powered mobile-first Progressive Web App (PWA) that uses a device camera and a Google Teachable Machine image classification model to categorize visible waste into **Recyclable, Organic, or E-Waste** and provide immediate, actionable disposal guidance.
+# 🌱 Smart Waste Classifier
+
+### AI-powered waste recognition built for the mobile-first world.
+
+**Scan waste. Understand it. Dispose of it responsibly.**
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://smart-waste-classifier-steel.vercel.app/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/injmam089/smart-waste-classifier)
+[![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-AI-FF6F00?style=for-the-badge&logo=tensorflow)](https://www.tensorflow.org/js)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
+[![SDG 15](https://img.shields.io/badge/SDG%2015-Life%20on%20Land-4C9F38?style=for-the-badge)](https://sdgs.un.org/goals/goal15)
+
+<br>
+
+**♻️ Recyclable &nbsp; • &nbsp; 🌱 Organic &nbsp; • &nbsp; 🔋 E-Waste**
+
+</div>
 
 ---
 
-## 1. Project Title
-**Smart Waste Classifier App**
+## 📱 What is Smart Waste Classifier?
 
-## 2. Description
-The Smart Waste Classifier is a lightweight, responsive, client-side web application designed to help individuals and communities separate waste accurately at the point of disposal. By positioning an item in front of the device's camera, the user receives an instantaneous visual feature analysis, classification into one of three core waste categories, a statistical confidence score, and clear step-by-step disposal instructions.
+**Smart Waste Classifier** is a mobile-first AI web application that helps users identify common waste categories using their smartphone camera or gallery.
 
-## 3. The Problem
-Improper waste sorting and recycling contamination pose massive ecological and economic challenges worldwide. Municipal recycling streams are frequently contaminated with organic matter, while hazardous electronic waste (e-waste) and batteries are mistakenly discarded into regular landfills, leading to toxic leaching and fires. Most citizens struggle with ambiguous packaging symbols and lack instant guidance on how to properly clean, separate, or deposit specific waste items.
+Instead of asking users to manually decide where an item belongs, the application provides a simple visual classification workflow:
 
-## 4. The Solution
-The Smart Waste Classifier removes sorting ambiguity by providing an instant, accessible scanning utility directly in any mobile or desktop web browser:
-1. **Zero Install Required**: Operates instantly as a web app or installable PWA.
-2. **Instant Visual Classification**: Identifies common recyclables, compostable organics, and dangerous e-waste.
-3. **Transparent Confidence**: Clearly communicates model confidence levels and prompts for a rescan when lighting or positioning is ambiguous.
-4. **Actionable Instructions**: Supplies practical preparation and disposal steps (e.g., rinse, remove lids, take batteries to certified collection).
-5. **Private & Client-Side**: All camera frames remain strictly on the user's device.
-
-## 5. Features
-- **Mobile-First Responsive Interface**: Clean, accessible UI tailored for handheld smartphones (360px–420px) up to high-resolution desktop displays.
-- **Camera Viewfinder**: Live camera feed with corner framing reticles and optimized environment camera selection (`facingMode: "environment"`).
-- **Client-Side AI Inference**: Neural network predictions powered by Google Teachable Machine and TensorFlow.js.
-- **Configurable Confidence Threshold**: Automatic safety threshold (`CONFIDENCE_THRESHOLD = 0.75`) to flag uncertain predictions and avoid incorrect guidance.
-- **Categorized Waste Intelligence**:
-  - ♻️ **Recyclable**: Plastics, cardboard, paper, metal containers.
-  - 🌱 **Organic**: Food scraps, fruit peels, yard waste.
-  - 🔋 **E-Waste**: Electronics, cables, chargers, batteries.
-- **Local Scan History**: Reverse-chronological audit log stored in browser LocalStorage without external database overhead.
-- **Environmental Statistics Dashboard**: Aggregated summary counters and percentage distribution breakdowns.
-- **Installable PWA**: Offline-capable application shell, Web App Manifest, and Service Worker caching.
-- **Strict Accessibility (a11y)**: Semantic HTML5, keyboard navigation, high text contrast, and `aria-live` screen-reader announcements.
-
-## 6. How It Works
 ```text
-Open App
-   ↓
-Tap "Scan Waste"
-   ↓
-Allow Camera Access
-   ↓
-Center Waste Object in Viewfinder
-   ↓
-Capture Video Frame
-   ↓
-AI Model Analyzes Visual Features (Color, Texture, Shape, Edges)
-   ↓
-Confidence Check
-   ├── ≥ 75%  ──> Accepted Result ──> Disposal Guidance ──> Save to Local History
-   └── < 75%  ──> Low-Confidence Warning ──> Retake / Rescan Guidance
+          📷 CAPTURE
+              │
+              ▼
+       🖼️ IMAGE FRAME
+              │
+              ▼
+        🤖 AI ANALYSIS
+              │
+              ▼
+      🏷️ CLASSIFICATION
+              │
+      ┌───────┼────────┐
+      ▼       ▼        ▼
+     ♻️      🌱       🔋
+ Recyclable Organic  E-Waste
+      │       │        │
+      └───────┼────────┘
+              ▼
+       🗑️ DISPOSAL GUIDE
+              │
+              ▼
+        📊 SAVE RESULT
 ```
 
-## 7. Technology Stack
-- **Frontend Core**: Vanilla HTML5, CSS3, ES6+ JavaScript modules.
-- **Styling**: Tailwind CSS (Utility classes) + Custom CSS (`css/style.css`).
-- **AI / Machine Learning**: Google Teachable Machine Image Model, TensorFlow.js runtime.
-- **Browser APIs**:
-  - `navigator.mediaDevices.getUserMedia` (Camera feed)
-  - HTML5 `<canvas>` (Frame capture & resizing)
-  - `window.localStorage` (Client-side scan history & statistics)
-  - Service Worker API & Web App Manifest (PWA capabilities)
-- **Deployment**: Static HTTPS hosting (GitHub Pages, Vercel, Netlify).
+The entire core experience is designed to work **client-side in the browser**, with scan history and statistics stored locally.
 
-## 8. AI Model
-- **Platform**: Google Teachable Machine (Image Model).
-- **Core Classes**: `Recyclable`, `Organic`, `E-Waste`.
-- **Inference Mode**: Pure client-side evaluation running on the browser's WebGL / CPU backend.
-- **Confidence Handling**: Probabilities are normalized between 0% and 100%. Classifications with top probability below 75% are routed to an informative retry screen.
+---
 
-## 9. Project Structure
+## ✨ Why this project?
+
+Waste segregation sounds simple, but everyday objects are not always easy to categorize.
+
+A user may see:
+
+> "Where should I throw this?"
+
+Smart Waste Classifier turns that question into:
+
+> **Scan → AI identifies → App explains → User disposes responsibly**
+
+### Core goals
+
+- Make waste identification **fast**
+- Make the interface **easy enough for anyone**
+- Make the experience **camera-first**
+- Provide useful disposal guidance
+- Keep basic history available without requiring an account
+- Encourage better waste-segregation habits
+
+---
+
+# 🚀 Key Features
+
+| Feature | Description |
+|---|---|
+| 📷 **Smart Scanner** | Scan waste using the phone camera |
+| 🖼️ **Gallery Upload** | Analyze an existing image |
+| 🤖 **AI Classification** | TensorFlow.js + Teachable Machine |
+| ♻️ **3 Waste Classes** | Recyclable, Organic, E-Waste |
+| 🎯 **Confidence Threshold** | 75% minimum confidence |
+| 🗑️ **Disposal Guidance** | Category-specific handling guidance |
+| 📜 **Scan History** | View previous classifications |
+| 📊 **Statistics** | Track category distribution |
+| 💾 **LocalStorage** | Persistent client-side history |
+| 📱 **PWA** | Installable mobile web experience |
+| 🌙 **Responsive UI** | Mobile-first with larger-screen support |
+| ♿ **Accessible Controls** | Large touch targets and clear states |
+
+---
+
+# 📱 Mobile-First Experience
+
+This project is **not desktop-first UI squeezed into a phone**.
+
+The interface was designed around the way people actually use a smartphone:
+
+```text
+┌──────────────────────────┐
+│                          │
+│       Smart Waste        │
+│                          │
+│    "Sort smarter.        │
+│     Live greener."       │
+│                          │
+│      ┌────────────┐      │
+│      │  📷 SCAN   │      │
+│      └────────────┘      │
+│                          │
+│   Quick Actions          │
+│                          │
+│   How it works           │
+│                          │
+├──────────────────────────┤
+│ 🏠  📜  📷  📊  ℹ️       │
+└──────────────────────────┘
+```
+
+### Target mobile viewports
+
+- `360 × 800`
+- `390 × 844`
+- `412 × 915`
+
+### UX principles
+
+- Large touch targets
+- Thumb-friendly controls
+- Bottom navigation
+- Camera-first interaction
+- Minimal steps
+- Clear AI feedback
+- Safe-area support
+- No unnecessary technical clutter
+
+---
+
+# 🧭 App Navigation
+
+The application contains five primary navigation destinations plus the central Scan action:
+
+```text
+🏠 Home
+   │
+   ├── 📷 Scan
+   │      └── AI Analysis
+   │             └── Result
+   │
+   ├── 📜 History
+   │
+   ├── 📊 Statistics
+   │
+   └── ℹ️ About
+```
+
+---
+
+# 🏠 Home
+
+The Home screen acts as the starting point for the entire experience.
+
+### Includes
+
+- 🌱 Eco-focused hero section
+- 📷 Primary **Scan Waste** action
+- ⚡ Quick actions
+- 🧠 How It Works
+- ♻️ Supported categories
+- 📜 Recent scans
+
+### Hero
+
+> **Sort smarter. Live greener.**
+
+The main action is intentionally obvious:
+
+> **Scan Waste**
+
+---
+
+# 📷 AI Waste Scanner
+
+The scanner is the heart of the application.
+
+### User flow
+
+```text
+1. Open Scanner
+       ↓
+2. Allow Camera
+       ↓
+3. Position Waste
+       ↓
+4. Capture
+       ↓
+5. AI Analysis
+       ↓
+6. Classification Result
+```
+
+### Scanner capabilities
+
+- Live camera preview
+- Camera switching
+- Gallery selection
+- Framing guidance
+- Capture button
+- Retake option
+- AI analysis state
+- Error recovery
+- Low-confidence handling
+
+The scanner is optimized for portrait mobile usage.
+
+---
+
+# 🤖 AI Classification
+
+The application uses a **Google Teachable Machine image model** running through **TensorFlow.js** in the browser.
+
+### Model classes
+
+| Category | Examples |
+|---|---|
+| ♻️ **Recyclable** | Plastic, paper, cardboard, glass, metal |
+| 🌱 **Organic** | Food and biological waste |
+| 🔋 **E-Waste** | Batteries, electronics, PCBs, appliances |
+
+The model evaluates learned visual patterns such as:
+
+- Shape
+- Color
+- Texture
+- Edges
+- Surface appearance
+- Visual patterns
+
+It then returns probabilities for the available classes.
+
+---
+
+# 🎯 Confidence System
+
+The application uses a **75% confidence threshold**.
+
+```text
+              AI Prediction
+                   │
+          ┌────────┴────────┐
+          │                 │
+       ≥ 75%              < 75%
+          │                 │
+          ▼                 ▼
+   CONFIDENT RESULT      UNCERTAIN
+          │                 │
+          ▼                 ▼
+   Disposal Guidance     Try Again
+```
+
+### Example
+
+```text
+Plastic Bottle
+
+♻️ Recyclable
+94% confidence
+
+Classification Confident
+```
+
+When confidence is below the threshold, the app avoids presenting the prediction as a reliable classification and instead asks the user to try again.
+
+---
+
+# 🧠 AI + Application Logic
+
+The AI model is responsible for **visual classification**.
+
+The application layer is responsible for:
+
+```text
+AI Prediction
+     │
+     ▼
+Normalize Label
+     │
+     ▼
+Check Confidence
+     │
+     ▼
+Map Category
+     │
+     ▼
+Load Disposal Guidance
+     │
+     ▼
+Render Result
+     │
+     ▼
+Save Scan
+```
+
+This separation keeps the model focused on recognition while the application manages the user experience and category-specific information.
+
+---
+
+# 🗑️ Disposal Guidance
+
+After classification, the application provides practical guidance for the detected category.
+
+Guidance can cover:
+
+- 🧼 Preparation
+- 🚛 Appropriate disposal route
+- ⚠️ Safety considerations
+- 🏛️ Local disposal considerations
+
+> **Important:** Disposal rules differ between cities and municipalities. The application should be treated as an awareness and guidance tool, not a replacement for official local waste-management instructions.
+
+---
+
+# 📜 Scan History
+
+Every successful scan can be saved locally.
+
+### History contains
+
+- Category
+- Item/result name
+- Confidence
+- Timestamp
+
+### Filters
+
+```text
+ALL
+│
+├── ♻️ Recyclable
+├── 🌱 Organic
+└── 🔋 E-Waste
+```
+
+No account is required for the basic local history workflow.
+
+---
+
+# 📊 Statistics
+
+The Statistics screen turns scan history into a simple personal dashboard.
+
+### Metrics
+
+```text
+┌────────────────────────────┐
+│        YOUR IMPACT         │
+├─────────────┬──────────────┤
+│ Total Scans │ Recyclable   │
+│     25      │      12      │
+├─────────────┼──────────────┤
+│  Organic    │   E-Waste   │
+│      8      │       5      │
+└─────────────┴──────────────┘
+```
+
+Distribution data helps users understand their own scanning patterns.
+
+---
+
+# 💾 Privacy-First Local Storage
+
+The core application does not require a user account.
+
+Scan information is stored in the browser using:
+
+```text
+localStorage
+```
+
+### Local data may include
+
+- Scan history
+- Classification result
+- Confidence
+- Timestamp
+- Statistics
+
+### Privacy model
+
+```text
+📷 Camera
+   ↓
+🧠 Browser AI
+   ↓
+📊 Local Result
+   ↓
+💾 Browser Storage
+```
+
+Clearing the browser's site data/storage can remove locally stored history.
+
+---
+
+# 📲 Progressive Web App
+
+Smart Waste Classifier is structured as a **Progressive Web App**.
+
+### PWA capabilities
+
+- `manifest.json`
+- Service Worker
+- Installable experience
+- Cached static assets
+- Mobile viewport support
+- Safe-area support
+
+The goal is to make the web application feel closer to a lightweight native mobile application.
+
+---
+
+# 🎨 Design System
+
+The visual language follows a **Premium Eco-Tech** direction.
+
+### Primary palette
+
+```text
+Deep Forest
+#064E3B
+
+Forest Emerald
+#065F46
+
+Emerald
+#047857
+
+Mint
+#10B981
+
+Fresh Mint
+#34D399
+
+Surface
+#F8FAFC
+```
+
+### Semantic category colors
+
+| Category | Direction |
+|---|---|
+| ♻️ Recyclable | Emerald |
+| 🌱 Organic | Lime / Green |
+| 🔋 E-Waste | Amber |
+| ❓ Uncertain | Slate |
+
+### Typography
+
+**Plus Jakarta Sans**
+
+The interface emphasizes readability and comfortable mobile text sizing.
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Tailwind CSS
+- Plus Jakarta Sans
+
+## AI / Machine Learning
+
+- Google Teachable Machine
+- TensorFlow.js
+- Image Classification
+
+## Browser APIs
+
+- MediaDevices API
+- Canvas API
+- LocalStorage API
+- Service Worker API
+- Web App Manifest
+
+## Development / Deployment
+
+- Git
+- GitHub
+- Vercel
+
+---
+
+# 🏗️ Architecture
+
+```text
+┌───────────────────────────────────────────┐
+│              Mobile Browser               │
+│                                           │
+│  ┌─────────────┐      ┌───────────────┐ │
+│  │ Camera /    │─────▶│ Canvas / Image │ │
+│  │ Gallery     │      │ Preparation    │ │
+│  └─────────────┘      └───────┬───────┘ │
+│                               │           │
+│                               ▼           │
+│                    ┌──────────────────┐  │
+│                    │ TensorFlow.js    │  │
+│                    │ Teachable Model  │  │
+│                    └────────┬─────────┘  │
+│                             │             │
+│                             ▼             │
+│                    ┌──────────────────┐  │
+│                    │ Classification   │  │
+│                    │ + Confidence     │  │
+│                    └────────┬─────────┘  │
+│                             │             │
+│             ┌───────────────┼──────────┐  │
+│             ▼               ▼          ▼  │
+│        Result UI      Disposal Data   History
+│                                      │    │
+│                                      ▼    │
+│                                  LocalStorage
+└───────────────────────────────────────────┘
+```
+
+---
+
+# 📁 Project Structure
+
 ```text
 smart-waste-classifier/
-├── index.html                           # Single-page application structure & views
+│
+├── index.html
+│
 ├── css/
-│   └── style.css                        # Custom styling, animations & accessibility rules
+│   └── style.css
+│
 ├── js/
-│   ├── app.js                           # Application lifecycle orchestrator
-│   ├── camera.js                        # WebRTC camera stream & frame capture module
-│   ├── classifier.js                    # Teachable Machine model loader & predictor
-│   ├── waste-data.js                    # Centralized disposal guidance data dictionary
-│   ├── storage.js                       # LocalStorage persistence & statistics engine
-│   ├── ui.js                            # Screen transitions & DOM renderers
-│   └── utils.js                         # Shared helper functions (selectors, formatters)
+│   ├── app.js
+│   ├── camera.js
+│   ├── classifier.js
+│   ├── waste-data.js
+│   ├── storage.js
+│   ├── ui.js
+│   └── utils.js
+│
 ├── model/
-│   ├── model.json                       # Model graph topology (when bundled locally)
-│   ├── metadata.json                    # Class labels & training metadata
-│   └── weights.bin                      # Quantized neural network weights
+│
 ├── assets/
-│   ├── icons/                           # PWA icons (192x192, 512x512, favicon)
-│   ├── images/                          # Visual guides & category diagrams
-│   └── screenshots/                     # UI screenshots
-├── manifest.json                        # PWA Web App Manifest
-├── service-worker.js                    # PWA static cache & offline shell worker
-├── PROJECT_AUDIT.md                     # Phase-by-phase implementation audit
-├── SMART_WASTE_CLASSIFIER_ANTIGRAVITY_MASTER_PLAN.md # Master architectural specification
-└── README.md                            # Comprehensive project documentation
+│
+├── manifest.json
+├── service-worker.js
+├── README.md
+└── .gitignore
 ```
 
-## 10. Setup
-No Node.js runtime, build tools, or compilers are strictly required. The application runs natively in any modern web browser.
+---
 
-1. Clone or download the repository:
-   ```bash
-   git clone <repository-url>
-   cd smart-waste-classifier
-   ```
-2. Ensure files are placed in an HTTPS-capable web server or local development server.
+# ⚙️ Run Locally
 
-## 11. Running Locally
-Because modern browsers require secure contexts (HTTPS or `localhost`) to access camera hardware via `getUserMedia`, run a local HTTP server:
+## 1. Clone the repository
 
-### Using Python:
 ```bash
-# Python 3
-python -m http.server 8000
+git clone https://github.com/injmam089/smart-waste-classifier.git
 ```
-Open `http://localhost:8000` in your web browser.
 
-### Using Node.js (npx):
+## 2. Enter the project
+
 ```bash
-npx serve .
+cd smart-waste-classifier
 ```
 
-### Using VS Code Live Server:
-Right-click `index.html` and select **"Open with Live Server"**.
+## 3. Start a local server
 
-## 12. Camera / HTTPS Requirement
-Modern web security standards enforce that `navigator.mediaDevices.getUserMedia()` is **only** accessible under:
-- `http://localhost` or `http://127.0.0.1` (local development)
-- Valid `https://` domain origins (production deployment)
+For VS Code:
 
-When testing on mobile devices over a local Wi-Fi network, access must be routed through an HTTPS tunnel (such as `cloudflared` or `ngrok`) or deployed to a staging host like Vercel or GitHub Pages.
+1. Open the project folder.
+2. Install **Live Server** if necessary.
+3. Open `index.html`.
+4. Choose **Open with Live Server**.
 
-## 13. Model Configuration
-The AI classifier is permanently pre-configured with the production Google Teachable Machine model in `js/classifier.js` (`DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/'`). The model automatically initializes when the application launches or when scanning begins. To update or retrain the model in the future, simply update the `DEFAULT_MODEL_URL` constant or place exported model files in `./model/`.
+Camera features work best from a secure context such as:
 
-## 14. Testing
-The test plan covers 10 verification groups (A through J):
-- **Group A**: Launch & SPA Navigation
-- **Group B**: Camera permissions, streaming, and frame capture
-- **Group C**: AI model loading, inference, and confidence scoring
-- **Group D**: Classification accuracy across all three categories
-- **Group E**: Low-confidence handling & rescan workflows
-- **Group F**: LocalStorage persistence, sorting, and history clearance
-- **Group G**: Statistics metrics and distribution calculations
-- **Group H**: PWA installation, manifest validity, and offline shell
-- **Group I**: Responsive layouts (360px up to desktop)
-- **Group J**: Error resilience (denied permissions, offline, corrupted data)
+```text
+HTTPS
+```
 
-Refer to `TEST_REPORT.md` for complete test records and findings.
+or a local development environment such as:
 
-## 15. Deployment
-The application is entirely static and deployable to any HTTPS static web host:
-- **GitHub Pages**: Push to the `main` branch and enable GitHub Pages in repository settings.
-- **Vercel**: Import repository; zero build command needed (root directory serves `index.html`).
-- **Netlify**: Drag-and-drop or connect repository.
+```text
+localhost
+```
 
-Refer to `DEPLOYMENT.md` for deployment verification steps.
+---
 
-## 16. Privacy Notice
-- **Zero Cloud Image Uploads**: Camera streams and captured images are processed strictly in-memory inside the browser via HTML5 Canvas and TensorFlow.js.
-- **No Third-Party Trackers**: No invasive tracking cookies, analytics scripts, or user fingerprinting are employed.
-- **Local Storage Only**: Only high-level classification metadata (category, confidence percentage, timestamp) is stored in the user's browser LocalStorage.
+# 📷 Camera Permission
 
-## 17. Technical Limitations
-1. **Visual Feature Analysis Only**: The camera analyzes optical features (shapes, colors, textures, and edges). It **cannot** physically measure object weight, exact cubic dimensions, or internal material purity.
-2. **Confidence is Statistical**: A 94% confidence score represents the statistical probability generated by the trained neural network relative to its training set, not absolute certainty.
-3. **Lighting & Angle Dependency**: Heavy shadows, glare, complex backgrounds, or overlapping items may degrade prediction confidence.
-4. **Local Regulations Vary**: Recycling rules vary between municipalities. The app provides standard global best practices, but users should always adhere to local municipal recycling guidelines.
+On the first scan:
 
-## 18. Future Scope (Roadmap)
-- **Version 1.1**: Expanded waste sub-classes (e-waste battery types, glass colors, textiles), multilingual disposal instructions.
-- **Version 2.0**: Municipal geolocation lookup for nearby recycling drop-off centers and hazardous waste depots.
-- **Version 3.0**: Smart Bin IoT hardware integration (ultrasonic fill-level sensors, scale modules).
+1. Open **Scan**
+2. Allow camera permission
+3. Point the camera at the waste
+4. Capture
+5. Wait for AI analysis
+6. Review the result
 
-## 19. Screenshots
-*(Placeholder — UI screenshots for Mobile Viewfinder, Classification Results, History, and Statistics will be captured and documented in later testing phases.)*
+If the camera is blocked:
 
-## 20. Credits & License
-- Built with Vanilla HTML5, CSS3, Tailwind CSS, and JavaScript.
-- Powered by Google Teachable Machine / TensorFlow.js.
-- Licensed under the MIT License.
+```text
+Browser Settings
+      ↓
+Site Permissions
+      ↓
+Camera
+      ↓
+Allow
+```
+
+---
+
+# 🧪 Testing & Quality
+
+The project has gone through functional and UI regression testing across the implemented phases.
+
+### Mobile viewport checks
+
+| Test | 360×800 | 390×844 | 412×915 |
+|---|:---:|:---:|:---:|
+| No horizontal overflow | ✅ | ✅ | ✅ |
+| Navigation | ✅ | ✅ | ✅ |
+| Touch targets | ✅ | ✅ | ✅ |
+| Responsive layout | ✅ | ✅ | ✅ |
+
+### Functional areas
+
+- [x] Foundation
+- [x] Navigation
+- [x] Camera
+- [x] AI classifier
+- [x] Classification result
+- [x] Disposal guidance
+- [x] LocalStorage
+- [x] History
+- [x] Statistics
+- [x] PWA
+- [x] Accessibility
+- [x] Responsive UI
+
+### Automated verification
+
+```text
+50 / 50 tests passed
+```
+
+The automated flow also verifies the intended capture → analysis → prediction → storage → result workflow.
+
+> **Production note:** Automated testing does not replace final real-device camera testing. A physical smartphone should be used to verify camera permissions, capture, AI loading and result navigation before a release is considered fully production-verified.
+
+---
+
+# 🛡️ Error & Recovery Handling
+
+The scanner includes safeguards for common failures.
+
+### Low confidence
+
+```text
+AI confidence < 75%
+        ↓
+Uncertain Result
+        ↓
+Improve framing / lighting
+        ↓
+Scan Again
+```
+
+### Model loading
+
+The application handles model initialization before prediction and avoids exposing technical model configuration in the main user experience.
+
+### Capture recovery
+
+If analysis cannot be completed, the user receives a recoverable state instead of being permanently trapped in the capture flow.
+
+---
+
+# 🔐 Security & Privacy
+
+Smart Waste Classifier follows a client-side-first architecture.
+
+### Principles
+
+- No mandatory account
+- Camera access controlled by browser permissions
+- Scan history stored locally
+- No sensitive profile required
+- Browser storage can be cleared by the user
+- AI inference is performed in the browser
+
+### Important
+
+The application should not be used to make safety-critical decisions about hazardous materials.
+
+---
+
+# 🌍 SDG 15 — Life on Land
+
+Smart Waste Classifier supports environmental awareness through better waste identification and responsible disposal behavior.
+
+### Concept
+
+```text
+       🌱 Awareness
+            ↓
+      🤖 Identification
+            ↓
+       ♻️ Segregation
+            ↓
+      🗑️ Disposal
+            ↓
+     🌍 Cleaner Environment
+```
+
+The project aligns with the broader sustainability objective of reducing improper waste handling and encouraging responsible environmental practices.
+
+---
+
+# 📸 Screenshots
+
+> Add final production screenshots here after mobile deployment verification.
+
+Recommended screenshot set:
+
+| Screen | File |
+|---|---|
+| 🏠 Home | `assets/screenshots/home.png` |
+| 📷 Scanner | `assets/screenshots/scanner.png` |
+| 🤖 AI Analysis | `assets/screenshots/analysis.png` |
+| 🎯 Result | `assets/screenshots/result.png` |
+| 🗑️ Disposal | `assets/screenshots/disposal.png` |
+| 📜 History | `assets/screenshots/history.png` |
+| 📊 Statistics | `assets/screenshots/statistics.png` |
+
+Example:
+
+```markdown
+![Home](assets/screenshots/home.png)
+![Scanner](assets/screenshots/scanner.png)
+![Result](assets/screenshots/result.png)
+```
+
+---
+
+# 🚀 Deployment
+
+The project is designed for deployment using **Vercel**.
+
+### Deployment checklist
+
+```text
+☑️ Production build
+☑️ Correct model configuration
+☑️ HTTPS enabled
+☑️ Camera permission
+☑️ AI model loading
+☑️ Real prediction
+☑️ Result navigation
+☑️ LocalStorage
+☑️ PWA assets
+☑️ Mobile verification
+```
+
+### Live Project
+
+**Repository**
+
+https://github.com/injmam089/smart-waste-classifier
+
+**Live Application**
+
+https://smart-waste-classifier-steel.vercel.app/
+
+---
+
+# 🔮 Roadmap
+
+### Phase 1 — Core Experience
+- [x] Camera scanning
+- [x] AI classification
+- [x] Waste categories
+- [x] Disposal guidance
+- [x] History
+- [x] Statistics
+
+### Phase 2 — Mobile Experience
+- [x] Mobile-first redesign
+- [x] Bottom navigation
+- [x] Camera-first scanner
+- [x] PWA
+- [x] Accessibility improvements
+
+### Phase 3 — Future Intelligence
+- [ ] More waste classes
+- [ ] Larger training dataset
+- [ ] Multilingual support
+- [ ] Local recycling-center discovery
+- [ ] Location-aware disposal guidance
+- [ ] Community waste insights
+- [ ] Optional cloud synchronization
+- [ ] Sustainability achievements
+
+---
+
+# 💡 Future Vision
+
+The long-term goal is to evolve the project from a simple classifier into a **personal waste-assistance platform**.
+
+```text
+          📷
+       Scan Waste
+          │
+          ▼
+        🤖 AI
+          │
+          ▼
+     Identify Item
+          │
+          ▼
+   ♻️ Best Disposal
+          │
+          ▼
+    📍 Find Nearby
+      Facility
+          │
+          ▼
+       🌍 Impact
+```
+
+---
+
+# 👨‍💻 Project
+
+**Smart Waste Classifier**
+
+Built as an AI + sustainability focused web application with a strong emphasis on mobile usability and practical environmental awareness.
+
+### Project links
+
+- 🌐 **Live:** https://smart-waste-classifier-steel.vercel.app/
+- 💻 **GitHub:** https://github.com/injmam089/smart-waste-classifier
+
+---
+
+<div align="center">
+
+### 🌱 Scan smarter. Sort better. Live greener.
+
+**Made with ♻️ + 🤖 + 📱**
+
+</div>

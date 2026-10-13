@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered mobile-first PWA to identify waste as Recyclable, Organic, or E-Waste with responsible disposal guidance.">
+  <meta name="theme-color" content="#15803d">
+  <title>Smart Waste Classifier</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-green-100 selection:text-green-900">
+
+  <!-- Accessible Skip Navigation Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Accessible Live Region for Screen Readers -->
+  <div id="screen-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- App Brand / Logo -->
+      <button data-nav-target="home" class="flex items-center gap-2.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded-lg p-1" aria-label="Go to Home">
+        <span class="w-9 h-9 rounded-xl bg-green-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">🌱</span>
+        <div>
+          <span class="font-bold text-slate-900 text-base leading-tight block">Smart Waste Classifier</span>
+          <span class="text-xs text-green-700 font-medium block">Responsible Waste Identification</span>
+        </div>
+      </button>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1" aria-label="Main Navigation">
+        <button data-nav-target="home" class="px-3 py-2 rounded-lg text-sm font-semibold text-green-700 border-b-2 border-green-600 transition-colors" aria-current="page">Home</button>
+        <button data-nav-target="scan" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-green-700 hover:bg-green-50 transition-colors">Scan Waste</button>
+        <button data-nav-target="history" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-green-700 hover:bg-green-50 transition-colors">History</button>
+        <button data-nav-target="statistics" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-green-700 hover:bg-green-50 transition-colors">Statistics</button>
+        <button data-nav-target="about" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-green-700 hover:bg-green-50 transition-colors">About</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 safe-bottom-padding" tabindex="-1">
+
+    <!-- =========================================================================
+         SCREEN 1: HOME (#screen-home)
+         ========================================================================= -->
+    <section id="screen-home" class="app-screen active" aria-labelledby="home-heading">
+      <!-- Hero Banner -->
+      <div class="bg-gradient-to-br from-green-800 via-green-700 to-emerald-900 rounded-3xl p-6 sm:p-10 text-white shadow-lg mb-8 relative overflow-hidden">
+        <div class="relative z-10 max-w-xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm mb-4">
+            <span>✨</span> AI-Powered Waste Classification
+          </span>
+          <h1 id="home-heading" class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            Smart Waste Classifier
+          </h1>
+          <p class="text-green-50 text-base sm:text-lg mb-6 leading-relaxed">
+            Identify waste with AI and learn how to dispose of it responsibly to keep our communities clean.
+          </p>
+
+          <!-- Primary CTA Button -->
+          <button data-nav-target="scan" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-green-900 hover:bg-green-50 active:bg-green-100 font-bold px-8 py-4 rounded-2xl shadow-md text-lg transition-transform active:scale-[0.98]">
+            <span class="text-2xl" aria-hidden="true">📷</span>
+            <span>Scan Waste</span>
+          </button>
+        </div>
+
+        <!-- Decorative Background Circle -->
+        <div class="absolute -right-12 -bottom-16 w-64 h-64 bg-green-600/30 rounded-full blur-2xl pointer-events-none" aria-hidden="true"></div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+        <button data-nav-target="history" class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-green-300 hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group">
+          <span class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl group-hover:scale-105 transition-transform" aria-hidden="true">📜</span>
+          <span class="font-semibold text-slate-800 text-sm">Scan History</span>
+          <span class="text-xs text-slate-500">View logged scans</span>
+        </button>
+
+        <button data-nav-target="statistics" class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-green-300 hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group">
+          <span class="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-xl group-hover:scale-105 transition-transform" aria-hidden="true">📊</span>
+          <span class="font-semibold text-slate-800 text-sm">Statistics</span>
+          <span class="text-xs text-slate-500">Category breakdown</span>
+        </button>
+
+        <button data-nav-target="about" class="col-span-2 sm:col-span-1 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-green-300 hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group">
+          <span class="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-xl group-hover:scale-105 transition-transform" aria-hidden="true">ℹ️</span>
+          <span class="font-semibold text-slate-800 text-sm">About & Privacy</span>
+          <span class="text-xs text-slate-500">Safe client-side AI</span>
+        </button>
+      </div>
+
+      <!-- How It Works Section -->
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <span>🔄</span> How It Works
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="flex flex-col gap-2">
+            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-800 font-bold flex items-center justify-center text-base">1</div>
+            <h3 class="font-bold text-slate-800">Scan Object</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">Position one waste object clearly within the camera frame with good lighting.</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-800 font-bold flex items-center justify-center text-base">2</div>
+            <h3 class="font-bold text-slate-800">AI Analyzes</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">Client-side AI examines visual features like color, texture, edges, and shapes.</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-800 font-bold flex items-center justify-center text-base">3</div>
+            <h3 class="font-bold text-slate-800">Get Classification</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">Identified as Recyclable, Organic, or E-Waste with a confidence score.</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-800 font-bold flex items-center justify-center text-base">4</div>
+            <h3 class="font-bold text-slate-800">Follow Guidance</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">Follow practical, actionable disposal instructions for sustainable waste handling.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supported Categories Preview -->
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <span>📦</span> Supported Categories
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Recyclable -->
+          <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl" aria-hidden="true">♻️</span>
+                <h3 class="font-bold text-emerald-900 text-lg">Recyclable</h3>
+              </div>
+              <p class="text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-2">Plastics, Paper, Metals</p>
+              <p class="text-sm text-emerald-950 mb-3 leading-relaxed">Bottles, cardboard, clean paper, metal cans. Empty and rinse before recycling.</p>
+            </div>
+            <span class="text-xs text-emerald-700 font-medium">Keep clean and dry</span>
+          </div>
+
+          <!-- Organic -->
+          <div class="bg-lime-50/60 border border-lime-200/80 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl" aria-hidden="true">🌱</span>
+                <h3 class="font-bold text-lime-900 text-lg">Organic</h3>
+              </div>
+              <p class="text-xs font-semibold text-lime-800 uppercase tracking-wider mb-2">Food & Garden Waste</p>
+              <p class="text-sm text-lime-950 mb-3 leading-relaxed">Food scraps, vegetable peels, leaves, biodegradable organic materials.</p>
+            </div>
+            <span class="text-xs text-lime-700 font-medium">Compost where available</span>
+          </div>
+
+          <!-- E-Waste -->
+          <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl" aria-hidden="true">🔋</span>
+                <h3 class="font-bold text-amber-900 text-lg">E-Waste</h3>
+              </div>
+              <p class="text-xs font-semibold text-amber-800 uppercase tracking-wider mb-2">Electronics & Batteries</p>
+              <p class="text-sm text-amber-950 mb-3 leading-relaxed">Cables, chargers, batteries, small electronics. Never mix with regular trash.</p>
+            </div>
+            <span class="text-xs text-amber-700 font-medium">Use specialized collection</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 2: SCAN (#screen-scan)
+         ========================================================================= -->
+    <section id="screen-scan" class="app-screen" aria-labelledby="scan-heading">
+      <div class="flex items-center justify-between mb-4">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+          <span aria-hidden="true">←</span> Back to Home
+        </button>
+        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+        <div class="max-w-md mx-auto">
+          <h2 id="scan-heading" class="text-2xl font-bold text-slate-900 mb-2 text-center">Scan Waste</h2>
+          <p class="text-sm text-slate-600 mb-6 text-center">Keep one object clearly visible in good lighting.</p>
+
+          <!-- Camera Viewfinder Shell (Phase 1 Placeholder Ready for Phase 2) -->
+          <div class="viewfinder-frame aspect-[4/3] sm:aspect-[1/1] w-full flex flex-col items-center justify-center text-center p-6 text-slate-300 relative mb-6 shadow-inner">
+            <div class="reticle-corner reticle-top-left" aria-hidden="true"></div>
+            <div class="reticle-corner reticle-top-right" aria-hidden="true"></div>
+            <div class="reticle-corner reticle-bottom-left" aria-hidden="true"></div>
+            <div class="reticle-corner reticle-bottom-right" aria-hidden="true"></div>
+            <div class="scan-laser" aria-hidden="true"></div>
+
+            <div class="relative z-10 flex flex-col items-center gap-3">
+              <span class="w-16 h-16 rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-3xl" aria-hidden="true">📷</span>
+              <p class="text-base font-semibold text-white">Camera Viewfinder Ready</p>
+              <p class="text-xs text-slate-400 max-w-xs">
+                Live camera feed and capture controls will activate in Phase 2.
+              </p>
+            </div>
+          </div>
+
+          <!-- Capture Action Shell -->
+          <div class="flex flex-col gap-3">
+            <button disabled class="w-full inline-flex items-center justify-center gap-2 bg-slate-200 text-slate-500 font-bold px-6 py-4 rounded-2xl cursor-not-allowed text-base shadow-sm">
+              <span>📷 Capture & Analyze</span>
+              <span class="text-xs bg-slate-300 px-2 py-0.5 rounded text-slate-700">Phase 2</span>
+            </button>
+            <button data-nav-target="home" class="w-full py-3 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors text-center">
+              Cancel and Return
+            </button>
+          </div>
+
+          <!-- Scan Best Practices Tips -->
+          <div class="mt-8 pt-6 border-t border-slate-100">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Best Practices for Scanning</h3>
+            <ul class="text-xs text-slate-600 space-y-2">
+              <li class="flex items-start gap-2">
+                <span class="text-green-600 font-bold" aria-hidden="true">✓</span>
+                <span>Ensure good ambient lighting without harsh glare.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-green-600 font-bold" aria-hidden="true">✓</span>
+                <span>Place the item on a neutral, clear surface.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-green-600 font-bold" aria-hidden="true">✓</span>
+                <span>Scan only one waste object at a time.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 3: RESULT (#screen-result)
+         ========================================================================= -->
+    <section id="screen-result" class="app-screen" aria-labelledby="result-heading">
+      <div class="flex items-center justify-between mb-4">
+        <button data-nav-target="scan" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+          <span aria-hidden="true">←</span> Back to Scan
+        </button>
+        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+        <div class="max-w-md mx-auto text-center">
+          <h2 id="result-heading" class="text-2xl font-bold text-slate-900 mb-2">Classification Result</h2>
+          <p class="text-sm text-slate-600 mb-6">AI analysis and disposal guidance view.</p>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
+            <span class="text-4xl block mb-2" aria-hidden="true">♻️</span>
+            <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full mb-2">Preview Layout</span>
+            <h3 class="text-xl font-bold text-slate-800 mb-1">Recyclable Material</h3>
+            <p class="text-sm text-slate-600">Sample classification output container configured for Phase 4.</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button data-nav-target="scan" class="flex-1 bg-green-700 hover:bg-green-800 text-white font-bold px-6 py-3 rounded-xl transition-colors">
+              Scan Again
+            </button>
+            <button data-nav-target="history" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3 rounded-xl transition-colors">
+              View History
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 4: HISTORY (#screen-history)
+         ========================================================================= -->
+    <section id="screen-history" class="app-screen" aria-labelledby="history-heading">
+      <div class="flex items-center justify-between mb-4">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+          <span aria-hidden="true">←</span> Back to Home
+        </button>
+        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+          <div>
+            <h2 id="history-heading" class="text-2xl font-bold text-slate-900">Scan History</h2>
+            <p class="text-sm text-slate-600">Saved classifications on this device.</p>
+          </div>
+          <button disabled class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg cursor-not-allowed">
+            Clear History
+          </button>
+        </div>
+
+        <!-- Empty State Container -->
+        <div class="py-12 flex flex-col items-center justify-center text-center">
+          <span class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mb-4" aria-hidden="true">📜</span>
+          <h3 class="text-lg font-bold text-slate-800 mb-1">No Scans Yet</h3>
+          <p class="text-sm text-slate-500 max-w-sm mb-6">Start your first waste scan to record and review your disposal history.</p>
+          <button data-nav-target="scan" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-sm">
+            <span>📷 Start Scanning</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 5: STATISTICS (#screen-statistics)
+         ========================================================================= -->
+    <section id="screen-statistics" class="app-screen" aria-labelledby="stats-heading">
+      <div class="flex items-center justify-between mb-4">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+          <span aria-hidden="true">←</span> Back to Home
+        </button>
+        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+        <div class="mb-6">
+          <h2 id="stats-heading" class="text-2xl font-bold text-slate-900">Waste Statistics</h2>
+          <p class="text-sm text-slate-600">Aggregated breakdown of classified items.</p>
+        </div>
+
+        <!-- Metric Counter Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Scans</span>
+            <span class="text-3xl font-extrabold text-slate-900">0</span>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
+            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-1">♻️ Recyclable</span>
+            <span class="text-3xl font-extrabold text-emerald-900">0</span>
+          </div>
+          <div class="bg-lime-50 border border-lime-200 rounded-2xl p-4 text-center">
+            <span class="text-xs font-bold text-lime-800 uppercase tracking-wider block mb-1">🌱 Organic</span>
+            <span class="text-3xl font-extrabold text-lime-900">0</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+            <span class="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">🔋 E-Waste</span>
+            <span class="text-3xl font-extrabold text-amber-900">0</span>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-500 text-center">Live metrics will update automatically from LocalStorage in Phase 7.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 6: ABOUT & PRIVACY (#screen-about)
+         ========================================================================= -->
+    <section id="screen-about" class="app-screen" aria-labelledby="about-heading">
+      <div class="flex items-center justify-between mb-4">
+        <button data-nav-target="home" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors p-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600">
+          <span aria-hidden="true">←</span> Back to Home
+        </button>
+        <span class="text-xs font-medium px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Phase 1 Foundation</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
+        <div>
+          <h2 id="about-heading" class="text-2xl font-bold text-slate-900 mb-2">About Smart Waste Classifier</h2>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            The Smart Waste Classifier is a mobile-first Progressive Web App designed to promote sustainable waste sorting using client-side machine learning.
+          </p>
+        </div>
+
+        <!-- Technical Boundary Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+          <h3 class="text-base font-bold text-blue-900 mb-2 flex items-center gap-2">
+            <span>🔬</span> Visual Feature Analysis Notice
+          </h3>
+          <p class="text-sm text-blue-950 leading-relaxed">
+            This application analyzes <strong>visual features</strong> (color, shape, contours, edges, and textures) using a trained image classification model. It does <strong>not</strong> physically measure weight, exact material purity, or dimensions. Confidence percentages represent statistical model probability based on training data.
+          </p>
+        </div>
+
+        <!-- Privacy Notice -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+          <h3 class="text-base font-bold text-emerald-900 mb-2 flex items-center gap-2">
+            <span>🔒</span> Privacy & Data Handling
+          </h3>
+          <p class="text-sm text-emerald-950 leading-relaxed">
+            Camera input is processed completely on your device. The app does not upload captured images or video feeds to any remote server. Only anonymous classification metadata (category, timestamp, confidence) is saved locally in your browser's LocalStorage.
+          </p>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 text-xs text-slate-500">
+          <p>Smart Waste Classifier MVP • Built with Vanilla HTML5, CSS3, Tailwind CSS & JavaScript.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 z-30 shadow-lg" aria-label="Mobile Navigation">
+    <div class="grid grid-cols-5 gap-1 max-w-md mx-auto">
+      <button data-nav-target="home" class="flex flex-col items-center justify-center p-2 rounded-xl text-green-700 font-bold transition-colors" aria-label="Home" aria-current="page">
+        <span class="text-xl" aria-hidden="true">🏠</span>
+        <span class="text-[10px] mt-0.5">Home</span>
+      </button>
+
+      <button data-nav-target="scan" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="Scan">
+        <span class="text-xl" aria-hidden="true">📷</span>
+        <span class="text-[10px] mt-0.5">Scan</span>
+      </button>
+
+      <button data-nav-target="history" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="History">
+        <span class="text-xl" aria-hidden="true">📜</span>
+        <span class="text-[10px] mt-0.5">History</span>
+      </button>
+
+      <button data-nav-target="statistics" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="Statistics">
+        <span class="text-xl" aria-hidden="true">📊</span>
+        <span class="text-[10px] mt-0.5">Stats</span>
+      </button>
+
+      <button data-nav-target="about" class="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 font-medium hover:text-green-700 transition-colors" aria-label="About">
+        <span class="text-xl" aria-hidden="true">ℹ️</span>
+        <span class="text-[10px] mt-0.5">About</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Application Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-auto py-6 text-center text-xs text-slate-500">
+    <div class="max-w-4xl mx-auto px-4">
+      <p class="mb-1 font-medium text-slate-700">🌱 Smart Waste Classifier — For Cleaner Communities</p>
+      <p>Client-side processing • Privacy protected • Follow local municipal disposal guidelines</p>
+    </div>
+  </footer>
+
+  <!-- Application Main Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -447,12 +447,41 @@
                 </p>
               </div>
 
-              <!-- Disposal Guidance Placeholder (Connected in Phase 5) -->
-              <div id="result-guidance-container" class="mt-4 pt-4 border-t border-slate-200/60 text-left text-xs text-slate-500">
-                <span class="font-semibold text-slate-700 block mb-1">Disposal Guidance</span>
-                <p id="result-guidance-placeholder" class="italic text-slate-500">
-                  Detailed disposal instructions will be provided in Phase 5.
-                </p>
+              <!-- Dynamic Disposal Guidance Container (Phase 5) -->
+              <div id="result-guidance-container" class="mt-5 pt-5 border-t border-slate-200/60 text-left space-y-3.5">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <span>📋</span> Practical Disposal Guidance
+                  </h4>
+                  <p id="result-guidance-summary" class="text-xs text-slate-600 leading-relaxed"></p>
+                </div>
+
+                <!-- Preparation & Separation Steps -->
+                <div id="result-prep-section" class="bg-white/90 rounded-xl p-3 border border-slate-200/80">
+                  <h5 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
+                    <span>🧼</span> Preparation & Separation
+                  </h5>
+                  <ul id="result-guidance-prep-list" class="text-xs text-slate-600 space-y-1 list-disc list-inside"></ul>
+                </div>
+
+                <!-- Disposal Channels -->
+                <div id="result-steps-section" class="bg-white/90 rounded-xl p-3 border border-slate-200/80">
+                  <h5 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
+                    <span>🚛</span> Where & How to Dispose
+                  </h5>
+                  <ul id="result-guidance-steps-list" class="text-xs text-slate-600 space-y-1 list-disc list-inside"></ul>
+                </div>
+
+                <!-- Safety Warnings & What NOT to do -->
+                <div id="result-warnings-section" class="bg-amber-50/90 rounded-xl p-3 border border-amber-200">
+                  <h5 class="text-xs font-bold text-amber-900 mb-1.5 flex items-center gap-1">
+                    <span>⚠️</span> Safety & Environmental Precautions
+                  </h5>
+                  <ul id="result-guidance-warnings-list" class="text-xs text-amber-900 space-y-1 list-disc list-inside"></ul>
+                </div>
+
+                <!-- Local Rules Advisory Notice -->
+                <p id="result-guidance-local-rule" class="text-[11px] text-slate-500 italic bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 leading-tight"></p>
               </div>
             </div>
 

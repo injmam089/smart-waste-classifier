@@ -4,6 +4,7 @@
  */
 
 import { $, $$ } from './utils.js';
+import { getWasteGuidance } from './waste-data.js';
 
 /**
  * Valid application screen identifiers.
@@ -387,6 +388,28 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
       explanationEl.textContent = `Visual feature analysis matched this item's optical characteristics (color, shape, contours, edges, and textures) to "${top.className}" with ${pct}% model confidence.`;
     }
 
+    // Dynamic Disposal Guidance (Phase 5)
+    const guidance = getWasteGuidance(top.category);
+
+    const summaryEl = $('#result-guidance-summary');
+    if (summaryEl) {
+      summaryEl.textContent = guidance.summary;
+    }
+
+    const prepListEl = $('#result-guidance-prep-list');
+    populateGuidanceList(prepListEl, guidance.preparation);
+
+    const stepsListEl = $('#result-guidance-steps-list');
+    populateGuidanceList(stepsListEl, guidance.disposalSteps);
+
+    const warningsListEl = $('#result-guidance-warnings-list');
+    populateGuidanceList(warningsListEl, guidance.warnings);
+
+    const localRuleEl = $('#result-guidance-local-rule');
+    if (localRuleEl) {
+      localRuleEl.textContent = guidance.localRuleNote;
+    }
+
     if (statusBadge) {
       statusBadge.textContent = 'Classification Confident';
       statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full';
@@ -432,6 +455,33 @@ export function renderClassificationResult(resultData, capturedDataUrl = '') {
   if (statusBadge) {
     statusBadge.textContent = 'Analysis Failed';
     statusBadge.className = 'text-xs font-semibold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full';
+  }
+}
+
+/**
+ * Safely populates an unordered list with array items using textContent.
+ * Prevents HTML injection vulnerabilities.
+ *
+ * @param {HTMLUListElement} ulElement
+ * @param {string[]} items
+ */
+function populateGuidanceList(ulElement, items) {
+  if (!ulElement) return;
+
+  // Clear existing items safely
+  while (ulElement.firstChild) {
+    ulElement.removeChild(ulElement.firstChild);
+  }
+
+  if (Array.isArray(items) && items.length > 0) {
+    if (ulElement.parentElement) ulElement.parentElement.classList.remove('hidden');
+    items.forEach((text) => {
+      const li = document.createElement('li');
+      li.textContent = text;
+      ulElement.appendChild(li);
+    });
+  } else if (ulElement.parentElement) {
+    ulElement.parentElement.classList.add('hidden');
   }
 }
 

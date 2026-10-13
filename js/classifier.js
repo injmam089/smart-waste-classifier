@@ -35,10 +35,11 @@ let modelConfig = {
 let loadedModel = null;
 let classifierState = 'idle'; // 'idle' | 'unconfigured' | 'loading' | 'ready' | 'error'
 let lastLoadError = null;
+let activeLoadPromise = null;
 
 /**
  * Returns current classifier state.
- * @returns {'unconfigured'|'loading'|'ready'|'error'}
+ * @returns {'idle'|'unconfigured'|'loading'|'ready'|'error'}
  */
 export function getClassifierState() {
   return classifierState;
@@ -70,12 +71,20 @@ export function setModelConfig(url) {
   if (!url || typeof url !== 'string' || !url.trim()) {
     modelConfig.modelUrl = null;
     modelConfig.metadataUrl = null;
+    loadedModel = null;
+    activeLoadPromise = null;
     classifierState = 'unconfigured';
     return;
   }
 
   const cleanUrl = url.trim().replace(/\/?$/, '/'); // Ensure trailing slash
-  modelConfig.modelUrl = `${cleanUrl}model.json`;
+  const newModelUrl = `${cleanUrl}model.json`;
+  if (modelConfig.modelUrl !== newModelUrl) {
+    loadedModel = null;
+    activeLoadPromise = null;
+    classifierState = 'idle';
+  }
+  modelConfig.modelUrl = newModelUrl;
   modelConfig.metadataUrl = `${cleanUrl}metadata.json`;
   console.log(`[Classifier] Model configured: ${modelConfig.modelUrl}`);
 }
@@ -83,6 +92,7 @@ export function setModelConfig(url) {
 /**
  * Loads the Teachable Machine image classification model asynchronously.
  * Uses window.tmImage (provided by @teachablemachine/image script).
+ * Leverages a singleton promise pattern to prevent duplicate or conflicting concurrent loads.
  *
  * @param {string} [customUrl] Optional model URL override.
  * @returns {Promise<{success: boolean, error?: string, errorType?: string}>}
@@ -102,8 +112,20 @@ export async function loadModel(customUrl) {
     };
   }
 
+  // If model is already loaded and ready, do not load again unnecessarily
+  if (isModelReady()) {
+    console.log('[Classifier] AI model is already loaded and ready for inference.');
+    return { success: true };
+  }
+
+  // If a model load is already in flight, reuse and await the existing promise
+  if (activeLoadPromise) {
+    console.log('[Classifier] Model loading already in progress; awaiting active load promise...');
+    return await activeLoadPromise;
+  }
+
   // Verify that Teachable Machine runtime is available
-  const tmImage = window.tmImage || globalThis.tmImage;
+  const tmImage = (typeof window !== 'undefined' ? window.tmImage : null) || globalThis.tmImage;
   if (!tmImage || typeof tmImage.load !== 'function') {
     classifierState = 'error';
     lastLoadError = 'Teachable Machine image library (tmImage) is not loaded in the browser environment.';
@@ -117,30 +139,37 @@ export async function loadModel(customUrl) {
 
   classifierState = 'loading';
   lastLoadError = null;
-  console.log(`[Classifier] Loading model from: ${modelConfig.modelUrl}...`);
 
-  try {
-    const model = await tmImage.load(modelConfig.modelUrl, modelConfig.metadataUrl);
-    loadedModel = model;
-    classifierState = 'ready';
-    console.log('[Classifier] Teachable Machine model loaded successfully and ready for inference.');
+  activeLoadPromise = (async () => {
+    try {
+      console.log(`[Classifier] Loading model from: ${modelConfig.modelUrl}...`);
+      const model = await tmImage.load(modelConfig.modelUrl, modelConfig.metadataUrl);
+      loadedModel = model;
+      classifierState = 'ready';
+      lastLoadError = null;
+      console.log('[Classifier] Teachable Machine model loaded successfully and ready for inference.');
 
-    // Log detected classes from metadata if available
-    const classLabels = model.getTotalClasses ? model.getClassLabels() : [];
-    console.log('[Classifier] Registered model classes:', classLabels);
+      // Log detected classes from metadata if available
+      const classLabels = model.getTotalClasses ? model.getClassLabels() : [];
+      console.log('[Classifier] Registered model classes:', classLabels);
 
-    return { success: true };
-  } catch (err) {
-    classifierState = 'error';
-    lastLoadError = `Failed to load model from ${modelConfig.modelUrl}: ${err.message || err}`;
-    console.error('[Classifier] Model loading failure:', err);
+      return { success: true };
+    } catch (err) {
+      classifierState = 'error';
+      lastLoadError = `Failed to load model from ${modelConfig.modelUrl}: ${err.message || err}`;
+      console.error('[Classifier] Model loading failure:', err);
 
-    return {
-      success: false,
-      error: 'AI model could not be loaded. Please check model files or network connection.',
-      errorType: 'LOAD_FAILED'
-    };
-  }
+      return {
+        success: false,
+        error: 'AI model could not be loaded. Please check model files or network connection.',
+        errorType: 'LOAD_FAILED'
+      };
+    } finally {
+      activeLoadPromise = null;
+    }
+  })();
+
+  return await activeLoadPromise;
 }
 
 /**
@@ -254,37 +283,28 @@ export async function predict(imageElement) {
     };
   }
 
+  // If a model load is actively in progress, await its completion before failing or predicting
+  if (activeLoadPromise) {
+    console.log('[Classifier] predict() called while model load in progress; awaiting model readiness...');
+    await activeLoadPromise;
+  }
+
   if (!isModelReady()) {
-    if (classifierState === 'unconfigured') {
+    if (classifierState === 'unconfigured' || !modelConfig.modelUrl) {
       return {
         success: false,
         error: 'Teachable Machine model is not yet configured. Please provide a trained model URL or place model files in /model.',
         errorType: 'MODEL_NOT_CONFIGURED'
       };
     }
-    if (classifierState === 'loading') {
-      return {
-        success: false,
-        error: 'AI model is still loading. Please wait a moment and try again.',
-        errorType: 'MODEL_LOADING'
-      };
-    }
     // If model has a valid URL configured but hasn't completed loading yet, load automatically on demand
-    if (modelConfig.modelUrl) {
-      console.log('[Classifier] Model not ready; loading production model automatically on demand...');
-      const loadRes = await loadModel();
-      if (!loadRes.success || !isModelReady()) {
-        return {
-          success: false,
-          error: loadRes.error || 'AI model is not ready. Please verify model loading status.',
-          errorType: 'MODEL_NOT_READY'
-        };
-      }
-    } else {
+    console.log('[Classifier] Model not ready; loading production model automatically on demand...');
+    const loadRes = await loadModel();
+    if (!loadRes.success || !isModelReady()) {
       return {
         success: false,
-        error: 'AI model is not ready. Please verify model loading status.',
-        errorType: 'MODEL_NOT_READY'
+        error: loadRes.error || 'AI model is not ready. Please verify model loading status.',
+        errorType: loadRes.errorType || 'MODEL_NOT_READY'
       };
     }
   }
@@ -356,5 +376,6 @@ export async function predict(imageElement) {
  */
 export function _setMockModelForTesting(mockModel) {
   loadedModel = mockModel;
+  activeLoadPromise = null;
   classifierState = mockModel ? 'ready' : 'unconfigured';
 }

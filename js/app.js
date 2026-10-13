@@ -278,21 +278,38 @@ async function initiateCameraStream() {
 async function handleCaptureFrame() {
   const videoEl = $('#camera-preview');
   const canvasEl = $('#camera-canvas');
+  const btnCapture = $('#btn-capture');
 
   if (!videoEl || !canvasEl) return;
+
+  // Temporarily disable capture button to prevent duplicate clicks during processing
+  if (btnCapture) btnCapture.disabled = true;
 
   const captureResult = captureFrame(videoEl, canvasEl, 640);
 
   if (captureResult.success) {
-    lastCapturedCanvas = captureResult.canvas;
-    const dataUrl = canvasEl.toDataURL('image/jpeg', 0.85);
+    // Clone captured frame to an independent off-DOM canvas so hardware/DOM changes never alter it
+    const frozenCanvas = document.createElement('canvas');
+    frozenCanvas.width = captureResult.canvas.width;
+    frozenCanvas.height = captureResult.canvas.height;
+    const fctx = frozenCanvas.getContext('2d');
+    fctx.drawImage(captureResult.canvas, 0, 0);
+
+    lastCapturedCanvas = frozenCanvas;
+    const dataUrl = frozenCanvas.toDataURL('image/jpeg', 0.85);
 
     updateCameraUI('captured', { dataUrl });
     console.log('[App] Frame captured successfully. Handing off to AI classifier...');
 
     // Run AI classification pipeline on the captured frame
-    await runClassification(lastCapturedCanvas);
+    try {
+      await runClassification(frozenCanvas);
+    } finally {
+      // Re-enable capture button when returning to camera
+      if (btnCapture) btnCapture.disabled = false;
+    }
   } else {
+    if (btnCapture) btnCapture.disabled = false;
     alert(captureResult.error || 'Unable to capture frame.');
   }
 }
@@ -300,45 +317,74 @@ async function handleCaptureFrame() {
 /**
  * Runs the AI classification pipeline on a canvas input.
  * Persists confident classifications to LocalStorage (FR-09, FR-12).
+ * Always guarantees clean navigation to the Result screen.
  * @param {HTMLCanvasElement} canvas
  */
 async function runClassification(canvas) {
-  if (!isModelReady()) {
-    console.log('[App] AI model is not ready yet. Awaiting production model load...');
+  let dataUrl = '';
+  try {
+    dataUrl = canvas && canvas.toDataURL ? canvas.toDataURL('image/jpeg', 0.85) : '';
+  } catch (err) {
+    console.warn('[App] Could not export canvas dataUrl:', err);
+  }
+
+  try {
+    // Ensure the AI model is ready; if not, await the singleton loader
+    if (!isModelReady()) {
+      console.log('[App] AI model is not ready yet. Awaiting production model load...');
+      updateClassifierUI('loading');
+      const loadRes = await loadModel(DEFAULT_MODEL_URL);
+      if (!loadRes.success) {
+        console.error('[App] Failed to load AI model during classification:', loadRes.error);
+        const errorResult = {
+          success: false,
+          error: loadRes.error || 'Failed to load AI model. Please check network connection.',
+          errorType: loadRes.errorType || 'LOAD_FAILED'
+        };
+        renderClassificationResult(errorResult, dataUrl);
+        showScreen('result');
+        return;
+      }
+    }
+
     updateClassifierUI('loading');
-    const loadRes = await loadModel(DEFAULT_MODEL_URL);
-    if (!loadRes.success) {
-      updateClassifierUI('error', { message: loadRes.error || 'Failed to load AI model.' });
-      return;
+    console.log('[App] Executing visual feature prediction on captured canvas...');
+    const result = await predict(canvas);
+    console.log('[App] Classification complete:', result);
+
+    // Render result on dedicated Result Screen
+    renderClassificationResult(result, dataUrl);
+
+    // If classification was confident (>= 75%), save scan metadata to LocalStorage (FR-09 & FR-12)
+    if (result && result.success && result.isConfident && result.topPrediction) {
+      const scanRecord = {
+        scanId: generateId('scan'),
+        timestamp: new Date().toISOString(),
+        category: result.topPrediction.category,
+        predictedClass: result.topPrediction.className,
+        confidence: result.topPrediction.probability,
+        guidanceKey: result.topPrediction.category
+      };
+
+      const saveResult = saveScan(scanRecord);
+      if (!saveResult.success) {
+        console.warn('[App] Could not persist scan history:', saveResult.error);
+      }
     }
-  }
 
-  updateClassifierUI('loading');
-  const result = await predict(canvas);
-  const dataUrl = canvas.toDataURL ? canvas.toDataURL('image/jpeg', 0.85) : '';
-
-  // Render on dedicated Result Screen
-  renderClassificationResult(result, dataUrl);
-
-  // If classification was confident (>= 75%), save scan metadata to LocalStorage (FR-09 & FR-12)
-  if (result.success && result.isConfident && result.topPrediction) {
-    const scanRecord = {
-      scanId: generateId('scan'),
-      timestamp: new Date().toISOString(),
-      category: result.topPrediction.category,
-      predictedClass: result.topPrediction.className,
-      confidence: result.topPrediction.probability,
-      guidanceKey: result.topPrediction.category
+    // ALWAYS transition to Result Screen after prediction
+    console.log('[App] Transitioning to result screen...');
+    showScreen('result');
+  } catch (err) {
+    console.error('[App] Unexpected error during classification flow:', err);
+    const failureResult = {
+      success: false,
+      error: "We couldn't analyze this image. Please try again.",
+      errorType: 'UNEXPECTED_ERROR'
     };
-
-    const saveResult = saveScan(scanRecord);
-    if (!saveResult.success) {
-      console.warn('[App] Could not persist scan history:', saveResult.error);
-    }
+    renderClassificationResult(failureResult, dataUrl);
+    showScreen('result');
   }
-
-  // Transition to Result Screen
-  showScreen('result');
 }
 
 /**

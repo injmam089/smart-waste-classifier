@@ -29,6 +29,10 @@
     }
   </script>
 
+  <!-- Google Teachable Machine & TensorFlow.js Runtime -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
   <!-- Custom Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -269,19 +273,71 @@
               </div>
             </div>
 
-            <!-- Overlay 4: Captured Frame Preview -->
-            <div id="camera-overlay-captured" class="viewfinder-overlay bg-slate-950/90 text-white hidden">
-              <div class="relative max-w-[200px] max-h-[160px] rounded-xl overflow-hidden border-2 border-green-500 shadow-lg mb-3">
+            <!-- Overlay 4: Captured Frame Preview & AI Analysis -->
+            <div id="camera-overlay-captured" class="viewfinder-overlay bg-slate-950/95 text-white overflow-y-auto max-h-full py-4 hidden">
+              <!-- Captured Frame Thumbnail -->
+              <div class="relative w-36 h-28 rounded-xl overflow-hidden border-2 border-green-500 shadow-md mb-2 shrink-0">
                 <img id="captured-image-preview" src="" alt="Captured waste frame" class="w-full h-full object-cover">
-                <span class="absolute top-2 right-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Captured</span>
+                <span class="absolute top-1 right-1 bg-green-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Frame</span>
               </div>
-              <h3 class="text-sm font-bold text-white mb-1">Frame Captured Successfully</h3>
-              <p class="text-xs text-slate-300 max-w-xs mb-2">
-                Frame captured at optimal resolution for neural network analysis.
-              </p>
-              <span class="inline-block text-[11px] text-green-300 bg-green-950/80 border border-green-800 px-3 py-1 rounded-full mb-2">
-                ✓ Ready for AI Classification (Phase 3)
-              </span>
+
+              <!-- AI Status 1: Analyzing / Loading -->
+              <div id="ai-loading-state" class="flex flex-col items-center text-center my-2 hidden">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-3" aria-hidden="true"></div>
+                <h3 class="text-sm font-bold text-white mb-1">Analyzing Visual Features...</h3>
+                <p class="text-xs text-slate-300 max-w-xs">AI is examining color, shape, texture, and edges.</p>
+              </div>
+
+              <!-- AI Status 2: Model Unconfigured State -->
+              <div id="ai-unconfigured-state" class="flex flex-col items-center text-center my-1 max-w-xs w-full hidden">
+                <span class="text-2xl mb-1" aria-hidden="true">⚙️</span>
+                <h3 class="text-sm font-bold text-white mb-1">Teachable Machine Model Needed</h3>
+                <p class="text-[11px] text-slate-300 mb-3 leading-tight">
+                  Enter your published Google Teachable Machine model URL to analyze this item, or place model files in <code class="text-green-300">/model/</code>:
+                </p>
+                <div class="flex flex-col gap-2 w-full">
+                  <input id="input-model-url" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." class="w-full px-2.5 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
+                  <button id="btn-load-custom-model" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-colors shadow-sm">
+                    Load Model & Analyze
+                  </button>
+                </div>
+              </div>
+
+              <!-- AI Status 3: High-Confidence Result (>= 75%) -->
+              <div id="ai-confident-state" class="flex flex-col items-center text-center my-1 max-w-xs w-full hidden">
+                <div id="ai-result-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/80 text-emerald-200 border border-emerald-600 mb-2">
+                  <span id="ai-result-icon" class="text-base" aria-hidden="true">♻️</span>
+                  <span id="ai-result-category">Recyclable</span>
+                </div>
+                <h3 id="ai-result-class" class="text-base font-extrabold text-white mb-1">Plastic Bottle</h3>
+                <span id="ai-result-confidence" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/40 mb-2">
+                  94% Confidence
+                </span>
+                <p class="text-[11px] text-slate-300">
+                  Visual feature analysis met the required 75% confidence threshold.
+                </p>
+              </div>
+
+              <!-- AI Status 4: Low-Confidence / Uncertain Result (< 75%) -->
+              <div id="ai-uncertain-state" class="flex flex-col items-center text-center my-1 max-w-xs w-full hidden">
+                <span class="text-2xl mb-1 text-amber-400" aria-hidden="true">⚠️</span>
+                <h3 class="text-sm font-bold text-white mb-1">Unable to Identify Accurately</h3>
+                <span id="ai-uncertain-confidence" class="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 mb-2">
+                  52% Confidence (&lt; 75% Threshold)
+                </span>
+                <p class="text-[11px] text-slate-300 mb-3 leading-relaxed">
+                  Try again with better lighting, a clear background, and one object centered in the camera.
+                </p>
+              </div>
+
+              <!-- AI Status 5: Error State -->
+              <div id="ai-error-state" class="flex flex-col items-center text-center my-1 max-w-xs w-full hidden">
+                <span class="text-2xl mb-1 text-rose-400" aria-hidden="true">⚠️</span>
+                <h3 class="text-sm font-bold text-white mb-1">Classification Error</h3>
+                <p id="ai-error-message" class="text-[11px] text-slate-300 mb-2">
+                  We couldn't analyze this image. Please try again.
+                </p>
+              </div>
             </div>
           </div>
 

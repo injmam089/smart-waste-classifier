@@ -1,10 +1,10 @@
 /**
  * Smart Waste Classifier - Main Application Orchestrator
- * Integrates UI navigation and Phase 2 Camera Module.
+ * Integrates UI navigation, Phase 2 Camera Module, and Phase 3 AI Classifier Module.
  */
 
 import { $, $$ } from './utils.js';
-import { initUI, showScreen, SCREENS, onScreenChange, updateCameraUI } from './ui.js';
+import { initUI, showScreen, SCREENS, onScreenChange, updateCameraUI, updateClassifierUI } from './ui.js';
 import {
   startCamera,
   stopCamera,
@@ -13,10 +13,18 @@ import {
   isCameraSupported,
   isCameraActive
 } from './camera.js';
+import {
+  loadModel,
+  predict,
+  getClassifierState,
+  isModelReady,
+  setModelConfig,
+  CONFIDENCE_THRESHOLD
+} from './classifier.js';
 
 let lastCapturedCanvas = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Smart Waste Classifier] Initializing application...');
 
   // Initialize UI navigation
@@ -24,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set up camera controls and lifecycle
   setupCameraIntegration();
+
+  // Set up model loading and custom URL inputs
+  setupClassifierIntegration();
+
+  // Attempt to load model from default local path if available
+  attemptDefaultModelLoad();
 
   // Determine initial screen from hash or default to home
   const initialHash = window.location.hash.replace('#', '').trim();
@@ -35,6 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log('[Smart Waste Classifier] Application initialized successfully.');
 });
+
+/**
+ * Attempts to load model from the default ./model/ directory.
+ * Fails gracefully if local model files are not yet deployed.
+ */
+async function attemptDefaultModelLoad() {
+  console.log('[App] Checking for default model files in ./model/...');
+  const res = await loadModel('./model/');
+  if (!res.success) {
+    console.log('[App] Default model not found or unconfigured. Model will await user URL configuration.');
+  }
+}
 
 /**
  * Configures camera event listeners, controls, and screen lifecycle integration.
@@ -108,6 +134,38 @@ function setupCameraIntegration() {
 }
 
 /**
+ * Sets up custom Teachable Machine model loading controls.
+ */
+function setupClassifierIntegration() {
+  const btnLoadCustomModel = $('#btn-load-custom-model');
+  const inputModelUrl = $('#input-model-url');
+
+  if (btnLoadCustomModel && inputModelUrl) {
+    btnLoadCustomModel.addEventListener('click', async () => {
+      const url = inputModelUrl.value.trim();
+      if (!url) {
+        alert('Please enter a valid Teachable Machine model URL.');
+        return;
+      }
+
+      updateClassifierUI('loading');
+      console.log(`[App] Loading custom Teachable Machine model from ${url}...`);
+
+      const loadRes = await loadModel(url);
+      if (loadRes.success) {
+        console.log('[App] Custom model loaded successfully.');
+        // If a frame was already captured, run prediction immediately
+        if (lastCapturedCanvas) {
+          await runClassification(lastCapturedCanvas);
+        }
+      } else {
+        updateClassifierUI('error', { message: loadRes.error });
+      }
+    });
+  }
+}
+
+/**
  * Starts the camera stream and updates UI states accordingly.
  */
 async function initiateCameraStream() {
@@ -129,9 +187,9 @@ async function initiateCameraStream() {
 }
 
 /**
- * Captures current frame from video onto canvas.
+ * Captures current frame from video onto canvas and triggers AI classification.
  */
-function handleCaptureFrame() {
+async function handleCaptureFrame() {
   const videoEl = $('#camera-preview');
   const canvasEl = $('#camera-canvas');
 
@@ -144,9 +202,37 @@ function handleCaptureFrame() {
     const dataUrl = canvasEl.toDataURL('image/jpeg', 0.85);
 
     updateCameraUI('captured', { dataUrl });
-    console.log('[App] Frame captured successfully. Ready for Phase 3 AI classification.');
+    console.log('[App] Frame captured successfully. Handing off to AI classifier...');
+
+    // Run AI classification pipeline on the captured frame
+    await runClassification(lastCapturedCanvas);
   } else {
     alert(captureResult.error || 'Unable to capture frame.');
+  }
+}
+
+/**
+ * Runs the AI classification pipeline on a canvas input.
+ * @param {HTMLCanvasElement} canvas
+ */
+async function runClassification(canvas) {
+  if (!isModelReady()) {
+    console.log('[App] AI model is not ready yet. Showing model configuration prompt.');
+    updateClassifierUI('unconfigured');
+    return;
+  }
+
+  updateClassifierUI('loading');
+  const result = await predict(canvas);
+
+  if (result.success) {
+    if (result.isConfident) {
+      updateClassifierUI('confident', result);
+    } else {
+      updateClassifierUI('uncertain', result);
+    }
+  } else {
+    updateClassifierUI('error', { message: result.error });
   }
 }
 
@@ -207,7 +293,7 @@ function getCameraErrorTitle(errorType) {
 }
 
 /**
- * Exports captured canvas reference for Phase 3 AI model consumption.
+ * Exports captured canvas reference for Phase 4 consumption.
  * @returns {HTMLCanvasElement|null}
  */
 export function getLastCapturedCanvas() {

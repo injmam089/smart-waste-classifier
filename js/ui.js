@@ -201,6 +201,67 @@ export function updateCameraUI(state, details = {}) {
 }
 
 /**
+ * Updates AI classification status within the captured frame overlay.
+ * @param {'loading'|'unconfigured'|'confident'|'uncertain'|'error'} state
+ * @param {Object} [data={}]
+ */
+export function updateClassifierUI(state, data = {}) {
+  const loadingEl = $('#ai-loading-state');
+  const unconfiguredEl = $('#ai-unconfigured-state');
+  const confidentEl = $('#ai-confident-state');
+  const uncertainEl = $('#ai-uncertain-state');
+  const errorEl = $('#ai-error-state');
+
+  // Hide all sub-states first
+  [loadingEl, unconfiguredEl, confidentEl, uncertainEl, errorEl].forEach((el) => {
+    if (el) el.classList.add('hidden');
+  });
+
+  if (state === 'loading') {
+    if (loadingEl) loadingEl.classList.remove('hidden');
+  } else if (state === 'unconfigured') {
+    if (unconfiguredEl) unconfiguredEl.classList.remove('hidden');
+  } else if (state === 'confident' && data.topPrediction) {
+    if (confidentEl) {
+      confidentEl.classList.remove('hidden');
+      const category = data.topPrediction.category;
+      const iconEl = $('#ai-result-icon');
+      const catEl = $('#ai-result-category');
+      const classEl = $('#ai-result-class');
+      const confEl = $('#ai-result-confidence');
+
+      const icons = { recyclable: '♻️', organic: '🌱', ewaste: '🔋', unknown: '📦' };
+      const labels = { recyclable: 'Recyclable', organic: 'Organic', ewaste: 'E-Waste', unknown: 'Unknown' };
+
+      if (iconEl) iconEl.textContent = icons[category] || '📦';
+      if (catEl) catEl.textContent = labels[category] || data.topPrediction.className;
+      if (classEl) classEl.textContent = data.topPrediction.className;
+      if (confEl) {
+        const pct = Math.round(data.topPrediction.probability * 100);
+        confEl.textContent = `${pct}% Confidence`;
+      }
+    }
+  } else if (state === 'uncertain') {
+    if (uncertainEl) {
+      uncertainEl.classList.remove('hidden');
+      const uncertConfEl = $('#ai-uncertain-confidence');
+      if (uncertConfEl && data.topPrediction) {
+        const pct = Math.round(data.topPrediction.probability * 100);
+        uncertConfEl.textContent = `${pct}% Confidence (< 75% Threshold)`;
+      }
+    }
+  } else if (state === 'error') {
+    if (errorEl) {
+      errorEl.classList.remove('hidden');
+      const errorMsgEl = $('#ai-error-message');
+      if (errorMsgEl && data.message) {
+        errorMsgEl.textContent = data.message;
+      }
+    }
+  }
+}
+
+/**
  * Initialize UI navigation listeners for elements with data-nav-target.
  */
 export function initUI() {

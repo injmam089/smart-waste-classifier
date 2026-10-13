@@ -154,7 +154,7 @@ Based on the Master Plan specifications (FR-01 through FR-17 and NFR-01 through 
 | **Phase 0** | **Project Audit** | **COMPLETED** | `PROJECT_AUDIT.md` created; audit summary approved. |
 | **Phase 1** | **Foundation** | **COMPLETED** | Git repo initialized, `.gitignore`, project folder structure, `index.html`, `css/style.css`, `js/utils.js`, `js/ui.js`, `js/app.js`, responsive SPA screen switching, and comprehensive `README.md` created and verified. |
 | **Phase 2** | **Camera Module** | **COMPLETED** | `js/camera.js` implemented with `getUserMedia`, environment camera preference, fallback constraints, track lifecycle management, canvas frame capture, and full error/permission state handling. |
-| **Phase 3** | AI Model | **NOT STARTED** | Planned: `classifier.js`, Teachable Machine model loader, inference pipeline, confidence threshold (75%). |
+| **Phase 3** | **AI Model** | **COMPLETED** | `js/classifier.js` implemented with Teachable Machine (`tmImage`) loader, 3 waste categories (`recyclable`, `organic`, `ewaste`), 75% confidence threshold enforcement, low-confidence rejection, unconfigured model handling, and canvas pipeline integration. |
 | **Phase 4** | Classification Result | **NOT STARTED** | Planned: Result screens, category mapping, low-confidence warning, rescan flow. |
 | **Phase 5** | Disposal Guidance | **NOT STARTED** | Planned: `waste-data.js`, structured guidance, examples, safety and recycling tips. |
 | **Phase 6** | Local History | **NOT STARTED** | Planned: `storage.js`, scan persistence, history list rendering, clear history with confirmation. |

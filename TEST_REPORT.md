@@ -4,7 +4,7 @@
 **Execution Date:** 2026-10-13  
 **Phase Status:** Phase 10 — COMPLETED  
 **Overall Status:** ALL AUTOMATED TEST GROUPS (A–K) PASSED (100% Pass Rate)  
-**Trained AI Model Status:** CONFIGURED & VERIFIED (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`)
+**Trained AI Model Status:** CONFIGURED & VERIFIED (`https://teachablemachine.withgoogle.com/models/KUTJfq9YN/`)
 
 ---
 
@@ -149,7 +149,7 @@
 ### Test Group K — Production Teachable Machine Model Configuration
 | Test ID | Test Case | Expected Result | Actual Result | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **K-01** | Production Model URL Constant | `DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/'` exported in `js/classifier.js` with explanatory comment | Constant exported with comment | **PASS ✅** |
+| **K-01** | Production Model URL Constant | `DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/KUTJfq9YN/'` exported in `js/classifier.js` with explanatory comment | Constant exported with comment | **PASS ✅** |
 | **K-02** | Initial Model Config Default | `modelConfig.modelUrl` and `modelConfig.metadataUrl` default to production URLs | Initialized with production URLs | **PASS ✅** |
 | **K-03** | Automatic On-Demand Loading | `predict()` and `app.js` automatically load production model if idle; no manual URL prompt required | Auto-load triggers seamlessly | **PASS ✅** |
 | **K-04** | UI Manual Input Hidden | `#ai-unconfigured-state` hidden from normal scan flow (`hidden`, `aria-hidden="true"`, `display: none`) | Hidden from user view | **PASS ✅** |
@@ -196,7 +196,7 @@ All individual phase regression test scripts were executed sequentially and veri
 ## 6. Technical Limitations & Deployment Notes
 
 1. **Pre-Configured Production Model:**
-   - The production Google Teachable Machine model URL (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`) is permanently configured as the default model.
+   - The production Google Teachable Machine model URL (`https://teachablemachine.withgoogle.com/models/KUTJfq9YN/`) is permanently configured as the default model.
    - It downloads weights over HTTPS on initial load; subsequent sessions leverage standard browser HTTP caching.
    - The manual model URL input is hidden from the user-facing scan flow.
 2. **Static HTTPS Hosting Prerequisite:**

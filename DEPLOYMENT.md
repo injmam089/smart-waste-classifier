@@ -138,7 +138,7 @@ A comprehensive security audit of the repository confirmed:
   Handles model loading states, probability normalizations, category mappings, 75% confidence thresholding, low-confidence rejection, and error recovery.
 - **Production Model Endpoint:** **Configured & Validated.**  
   The application is pre-configured with the production Google Teachable Machine model URL:
-  `https://teachablemachine.withgoogle.com/models/i63G5gVSy/`
+  `https://teachablemachine.withgoogle.com/models/KUTJfq9YN/`
   defined in `js/classifier.js` (`DEFAULT_MODEL_URL`). The model automatically initializes upon launch or scan entry without requiring manual user input.
 - **Model Classes:** Trained with 3 waste categories: `Recyclable`, `Organic`, `E-Waste`.
 - **Live Weights:** Resolved directly over secure HTTPS with standard CORS headers (`Access-Control-Allow-Origin: *`).

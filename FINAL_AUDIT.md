@@ -5,7 +5,7 @@
 **Status:** Complete & Verified  
 **Master Plan Reference:** `SMART_WASTE_CLASSIFIER_ANTIGRAVITY_MASTER_PLAN.md`  
 **Overall Implementation Status:** Architecture, foundation, UI, camera, classifier pipeline, disposal guidance, LocalStorage history, statistics, PWA, accessibility, testing, deployment preparation, and production model configuration are **100% IMPLEMENTED**.  
-**Production Model Status:** **Production Google Teachable Machine model (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`) is permanently configured as default, auto-loads on app launch and scan screen, and is verified against live model weights.**
+**Production Model Status:** **Production Google Teachable Machine model (`https://teachablemachine.withgoogle.com/models/KUTJfq9YN/`) is permanently configured as default, auto-loads on app launch and scan screen, and is verified against live model weights.**
 
 ---
 
@@ -153,7 +153,7 @@ The implemented architecture strictly mirrors Section 4 of the Master Plan:
 > - **Inference Architecture & Pipeline:** **COMPLETED & VERIFIED.**  
 >   All ML plumbing (`loadModel`, `predict`, `isConfident`, `normalizeCategory`, `getTopPrediction`), 75% threshold gating, multi-class mapping, retry advice, and error states are implemented and passed 100% of automated tests.
 > - **Production Model Configuration:** **CONFIGURED & VERIFIED.**  
->   The production Google Teachable Machine model URL (`https://teachablemachine.withgoogle.com/models/i63G5gVSy/`) is permanently set as `DEFAULT_MODEL_URL` in `js/classifier.js`. Live metadata and 2.05 MB weight tensors (`model.weights.bin`) were downloaded and verified in automated tests.
+>   The production Google Teachable Machine model URL (`https://teachablemachine.withgoogle.com/models/KUTJfq9YN/`) is permanently set as `DEFAULT_MODEL_URL` in `js/classifier.js`. Live metadata and 2.05 MB weight tensors (`model.weights.bin`) were downloaded and verified in automated tests.
 > - **Automated Inference & Live Weights:** **VERIFIED.**  
 >   The live model was loaded into TensorFlow.js and a forward pass was executed on a real input tensor. The classes `["Recyclable ", "Organic", "E-Waste"]` correctly mapped to application categories, and the app auto-loads the model without requiring manual URL entry. Manual URL input is hidden from the user-facing scan workflow.
 > - **Technical Limitation:** Model inference performance depends on client network speed to download weights, lighting conditions, object positioning, and background contrast. The application makes no claims regarding exact physical weight, material purity, or absolute accuracy percentage.

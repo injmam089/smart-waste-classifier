@@ -21,7 +21,7 @@ export const SUPPORTED_CATEGORIES = ['recyclable', 'organic', 'ewaste'];
  * This is the production Teachable Machine model URL for visual waste classification.
  * Update this constant if the model is retrained or updated in the future.
  */
-export const DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/i63G5gVSy/';
+export const DEFAULT_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/KUTJfq9YN/';
 
 /**
  * Configuration for the Teachable Machine model.

@@ -66,36 +66,49 @@ The application also provides local scan history and statistics using browser st
 
 ---
 
-# 📱 Application Preview
+## 📸 Application Screenshots
 
-> Add your project screenshots inside `assets/screenshots/` using the filenames shown below.
+Explore the application's primary screens.
 
-<div align="center">
+### 🏠 Home Screen
 
-### 🏠 Home
-
-<img src="assets/screenshots/01-home.png" width="850" alt="Smart Waste Classifier Home Screen">
-
-<br><br>
+<p align="center">
+  <img src="assets/screenshots/01-home.png"
+       width="600"
+       alt="Smart Waste Classifier Home Screen">
+</p>
 
 ### 🤖 Classification Result
 
-<img src="assets/screenshots/02-classification-result.png" width="850" alt="Classification Result Screen">
-
-<br><br>
+<p align="center">
+  <img src="assets/screenshots/02-classification-result.png"
+       width="600"
+       alt="AI Waste Classification Result">
+</p>
 
 ### 🕘 Scan History
 
-<img src="assets/screenshots/03-scan-history.png" width="850" alt="Scan History Screen">
+<p align="center">
+  <img src="assets/screenshots/03-scan-history.png"
+       width="600"
+       alt="Local Scan History">
+</p>
 
-<br><br>
+### 📊 Statistics Dashboard
 
-### 📊 Statistics
+<p align="center">
+  <img src="assets/screenshots/04-statistics.png"
+       width="600"
+       alt="Waste Classification Statistics">
+</p>
 
-<img src="assets/screenshots/04-statistics.png" width="850" alt="Statistics Screen">
+### 🔐 About & Privacy
 
-<br><br>
-
+<p align="center">
+  <img src="assets/screenshots/05-about-privacy.png"
+       width="600"
+       alt="About and Privacy Screen">
+</p>
 ### 🔐 About & Privacy
 
 <img src="assets/screenshots/05-about-privacy.png" width="850" alt="About and Privacy Screen">
